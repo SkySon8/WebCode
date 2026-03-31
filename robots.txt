@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://skyson8.github.io/WebCode/sitemap.xml
