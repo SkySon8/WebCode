@@ -1,4 +1,4 @@
-/* ============ RESET & BASE ============ */
+/* RESET & BASE */
 * {
     margin: 0;
     padding: 0;
@@ -23,7 +23,7 @@ h1, h2, h3, .logo, .nav-links a {
     font-family: 'Space Grotesk', sans-serif;
 }
 
-/* ============ HEADER ============ */
+/* Header */
 header {
     background-color: rgba(10, 10, 15, 0.95);
     backdrop-filter: blur(12px);
@@ -80,7 +80,7 @@ header {
     color: #fff;
 }
 
-/* ============ HERO SECTION ============ */
+/* Hero Section */
 .hero {
     min-height: 100vh;
     background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
@@ -150,7 +150,7 @@ header {
     margin-right: auto;
 }
 
-/* ============ BUTTONS ============ */
+/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -198,7 +198,7 @@ header {
     transform: translateY(-3px);
 }
 
-/* ============ SECTIONS ============ */
+/* Sections */
 section {
     padding: 90px 0;
 }
@@ -228,7 +228,7 @@ section {
     margin-bottom: 40px;
 }
 
-/* ============ ABOUT SECTION ============ */
+/* About Section */
 .about-grid {
     display: flex;
     gap: 50px;
@@ -285,7 +285,7 @@ section {
     transform: scale(1.02);
 }
 
-/* ============ CALCULATOR CARD ============ */
+/* Calculator Card */
 .calculator-card {
     background: #12121a;
     border-radius: 32px;
@@ -317,7 +317,7 @@ section {
     color: transparent;
 }
 
-/* ============ PROGRESS STEPS ============ */
+/* Progress Steps */
 .progress-steps {
     display: flex;
     justify-content: space-between;
@@ -362,7 +362,7 @@ section {
     transition: width 0.3s ease;
 }
 
-/* ============ SERVICE SELECTOR ============ */
+/* Service Selector */
 .service-selector {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -417,7 +417,7 @@ section {
     margin-left: 8px;
 }
 
-/* ============ PARAMS FORM ============ */
+/* Params Form */
 .params-form {
     margin-bottom: 30px;
 }
@@ -482,7 +482,7 @@ section {
     margin-top: 20px;
 }
 
-/* ============ OPTIONS LIST ============ */
+/* Options List */
 .options-list {
     display: flex;
     flex-direction: column;
@@ -500,7 +500,7 @@ section {
     cursor: pointer;
 }
 
-/* ============ ORDER SUMMARY ============ */
+/* Order Summary */
 .order-summary {
     background: #1e1e2a;
     padding: 20px;
@@ -522,7 +522,7 @@ section {
     margin-top: 5px;
 }
 
-/* ============ STEP NAVIGATION ============ */
+/* Step Navigation */
 .step-navigation {
     display: flex;
     justify-content: space-between;
@@ -530,7 +530,7 @@ section {
     margin-top: 30px;
 }
 
-/* ============ DEADLINE GROUP ============ */
+/* Deadline Group */
 .deadline-group {
     margin: 30px 0;
 }
@@ -620,7 +620,7 @@ section {
     display: block;
 }
 
-/* ============ PHOTO OPTIONS ============ */
+/* Photo Options */
 .photo-options {
     margin: 20px 0;
     display: flex;
@@ -656,7 +656,7 @@ section {
 }
 
 .photo-info {
-    background: rgba(168, 85, 247, 0.1);
+    background: rgba(168,85,247,0.1);
     padding: 12px 16px;
     border-radius: 12px;
     margin: 15px 0;
@@ -672,7 +672,7 @@ section {
     margin-top: 2px;
 }
 
-/* ============ CHECKBOX GROUP ============ */
+/* Checkbox Group */
 .checkbox-group {
     margin: 20px 0;
 }
@@ -753,7 +753,7 @@ section {
     color: #3b82f6;
 }
 
-/* ============ PORTFOLIO SECTION ============ */
+/* Portfolio Section */
 #portfolio {
     background: linear-gradient(135deg, #0a0a0f 0%, #12121a 100%);
 }
@@ -942,7 +942,7 @@ section {
     box-shadow: 0 8px 20px rgba(168,85,247,0.4);
 }
 
-/* ============ REVIEWS SECTION ============ */
+/* Reviews Section */
 .reviews-swiper {
     padding: 20px 0 50px;
 }
@@ -995,7 +995,7 @@ section {
     background: #a855f7;
 }
 
-/* ============ CONTACTS SECTION ============ */
+/* Contacts Section */
 .contacts-grid {
     display: flex;
     flex-wrap: wrap;
@@ -1060,7 +1060,7 @@ section {
     box-shadow: 0 8px 20px rgba(76,117,163,0.4);
 }
 
-/* ============ MODAL ============ */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -1137,7 +1137,7 @@ section {
     padding: 10px 24px;
 }
 
-/* ============ MESSAGE PREVIEW ============ */
+/* Message Preview */
 .message-preview {
     margin-top: 30px;
     background: #0a0a0f;
@@ -1230,7 +1230,7 @@ section {
     border-radius: 10px;
 }
 
-/* ============ TOAST NOTIFICATION ============ */
+/* Toast Notification */
 .toast-notification {
     position: fixed;
     bottom: 30px;
@@ -1257,7 +1257,7 @@ section {
     to { opacity: 0; visibility: hidden; }
 }
 
-/* ============ FOOTER ============ */
+/* Footer */
 footer {
     background: #050507;
     padding: 50px 0 30px;
@@ -1311,7 +1311,7 @@ footer {
     display: inline-block;
 }
 
-/* ============ ANIMATIONS ============ */
+/* Animations */
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(35px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1328,7 +1328,7 @@ footer {
     transform: translateY(0);
 }
 
-/* ============ RESPONSIVE ============ */
+/* Responsive */
 @media (max-width: 1200px) {
     .container {
         padding: 0 24px;
