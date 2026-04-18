@@ -1,9 +1,6 @@
-// Инициализация EmailJS (ваши данные)
-(function(){
-    emailjs.init({
-        publicKey: "dSnSJkM9QdbJRcPvI",
-    });
-})();
+// ============ TELEGRAM БОТ КОНФИГУРАЦИЯ ============
+const TELEGRAM_BOT_TOKEN = '8537230244:AAF5r2HBejj_o7A3AreAM5qf5UYGKNls0Lc'; // 
+const TELEGRAM_CHAT_ID = '1032144519'; 
 
 // Burger menu
 const burger = document.getElementById('burger');
@@ -52,6 +49,45 @@ let scrollPosition = 0;
 function disableScroll() { scrollPosition = window.scrollY; document.body.style.overflow = 'hidden'; document.body.style.position = 'fixed'; document.body.style.top = `-${scrollPosition}px`; document.body.style.width = '100%'; }
 function enableScroll() { document.body.style.overflow = ''; document.body.style.position = ''; document.body.style.top = ''; document.body.style.width = ''; window.scrollTo(0, scrollPosition); }
 
+// ============ ОТПРАВКА В TELEGRAM ============
+async function sendToTelegram(orderData) {
+    const message = `
+🆕 <b>НОВАЯ ЗАЯВКА С WEBCODE!</b>
+
+👤 <b>Имя:</b> ${orderData.name}
+📞 <b>Контакт:</b> ${orderData.contact}
+📋 <b>Услуга:</b> ${orderData.serviceType}
+📝 <b>Детали:</b> ${orderData.details || 'Не указаны'}
+💰 <b>Сумма:</b> ${orderData.finalPrice} ₽
+📅 <b>Дата:</b> ${new Date().toLocaleString('ru-RU')}
+
+🌐 <b>С сайта:</b> WEBCODE
+    `;
+    
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
+        const result = await response.json();
+        if (result.ok) {
+            console.log('✅ Уведомление отправлено в Telegram');
+            return true;
+        } else {
+            console.error('❌ Ошибка Telegram:', result);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Ошибка отправки в Telegram:', error);
+        return false;
+    }
+}
+
 // ============ ЗАГРУЗКА ДАННЫХ ============
 let prices = {};
 function loadPrices() {
@@ -69,31 +105,6 @@ function loadPrices() {
     }
 }
 loadPrices();
-
-// ============ ОТПРАВКА НА ПОЧТУ ЧЕРЕЗ EMAILJS ============
-async function sendToEmail(orderData) {
-    try {
-        const templateParams = {
-            name: orderData.name,
-            phone: orderData.contact,
-            service: orderData.serviceType,
-            details: orderData.details || 'Не указаны',
-            price: orderData.finalPrice,
-            date: new Date().toLocaleString('ru-RU')
-        };
-        
-        const response = await emailjs.send('service_il8g3um', 'template_91qahbf', templateParams);
-        
-        if (response.status === 200) {
-            console.log('✅ Письмо отправлено');
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error('❌ Ошибка EmailJS:', error);
-        return false;
-    }
-}
 
 // ============ ПОРТФОЛИО ============
 const defaultPortfolio = [
@@ -128,7 +139,7 @@ renderPortfolio();
 
 // ============ ОТЗЫВЫ ============
 const reviewsData = [
-    { name: "Анна К.", project: "Владелец кафе", text: "Сделали сайт для моего кафе быстро и качественно. Всё работает идеально, адаптив отличный. Рекомендую WEBCODE!" },
+    { name: "Арсен У..", project: "Видеомонтажер", text: "Стильный минималистичный дизайн для портфолио - это вам к этим ребятам )) Спасибо!" },
     { name: "Дмитрий В.", project: "Студия дизайна", text: "Профессиональный подход, учли все пожелания. Сайт получился стильным, с калькулятором, как я и хотел. Спасибо команде!" },
     { name: "Елена М.", project: "Интернет-магазин", text: "Быстро, качественно, с душой. Даже после запуска помогали с настройками. Обращусь ещё!" },
     { name: "Михаил С.", project: "Частный клиент", text: "Заказал обработку старых семейных фото. Результат превзошёл ожидания! Фотографии стали как новые, а оживление фото добавило магии." },
@@ -391,12 +402,12 @@ if (orderForm) {
         localStorage.setItem('webcode_applications', JSON.stringify(applications));
         
         showToast('⏳ Отправка заявки...');
-        const success = await sendToEmail(order);
+        const success = await sendToTelegram(order);
         
         if (success) {
             showToast('✅ Заявка отправлена! Мы свяжемся с вами');
         } else {
-            showToast('⚠️ Заявка сохранена в CRM, но письмо не отправлено. Мы свяжемся с вами!', false);
+            showToast('⚠️ Заявка сохранена в CRM. Мы свяжемся с вами в ближайшее время!', false);
         }
         
         document.getElementById('orderFormModal').style.display = 'none';
@@ -490,12 +501,12 @@ async function sendPhotoOrder() {
     localStorage.setItem('webcode_applications', JSON.stringify(applications));
     
     showToast('⏳ Отправка заявки...');
-    const success = await sendToEmail(order);
+    const success = await sendToTelegram(order);
     
     if (success) {
         showToast('✅ Заявка отправлена! Мы свяжемся с вами');
     } else {
-        showToast('⚠️ Заявка сохранена в CRM, но письмо не отправлено. Мы свяжемся с вами!', false);
+        showToast('⚠️ Заявка сохранена в CRM. Мы свяжемся с вами!', false);
     }
     
     const encodedMessage = encodeURIComponent(message);
