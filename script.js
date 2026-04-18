@@ -1,3 +1,10 @@
+// Инициализация EmailJS (ваши данные)
+(function(){
+    emailjs.init({
+        publicKey: "dSnSJkM9QdbJRcPvI",
+    });
+})();
+
 // Burger menu
 const burger = document.getElementById('burger');
 const navLinks = document.getElementById('navLinks');
@@ -63,30 +70,27 @@ function loadPrices() {
 }
 loadPrices();
 
-// ============ ОТПРАВКА НА ПОЧТУ ============
+// ============ ОТПРАВКА НА ПОЧТУ ЧЕРЕЗ EMAILJS ============
 async function sendToEmail(orderData) {
-    const formData = new FormData();
-    formData.append('name', orderData.name);
-    formData.append('phone', orderData.contact);
-    formData.append('service', orderData.serviceType);
-    formData.append('details', orderData.details || '');
-    formData.append('price', orderData.finalPrice);
-    formData.append('_subject', `Новая заявка с сайта WEBCODE!`);
-    formData.append('_template', 'table');
-    formData.append('_captcha', 'false');
-    
     try {
-        const response = await fetch('https://formsubmit.co/ajax/artem.26.2004@bk.ru', {
-            method: 'POST',
-            body: formData
-        });
-        if (response.ok) {
-            console.log('Письмо отправлено');
+        const templateParams = {
+            name: orderData.name,
+            phone: orderData.contact,
+            service: orderData.serviceType,
+            details: orderData.details || 'Не указаны',
+            price: orderData.finalPrice,
+            date: new Date().toLocaleString('ru-RU')
+        };
+        
+        const response = await emailjs.send('service_il8g3um', 'template_91qahbf', templateParams);
+        
+        if (response.status === 200) {
+            console.log('✅ Письмо отправлено');
             return true;
         }
         return false;
     } catch (error) {
-        console.error('Ошибка отправки письма:', error);
+        console.error('❌ Ошибка EmailJS:', error);
         return false;
     }
 }
@@ -392,7 +396,7 @@ if (orderForm) {
         if (success) {
             showToast('✅ Заявка отправлена! Мы свяжемся с вами');
         } else {
-            showToast('⚠️ Ошибка отправки. Заявка сохранена локально', true);
+            showToast('⚠️ Заявка сохранена в CRM, но письмо не отправлено. Мы свяжемся с вами!', false);
         }
         
         document.getElementById('orderFormModal').style.display = 'none';
@@ -491,7 +495,7 @@ async function sendPhotoOrder() {
     if (success) {
         showToast('✅ Заявка отправлена! Мы свяжемся с вами');
     } else {
-        showToast('⚠️ Ошибка отправки. Заявка сохранена локально', true);
+        showToast('⚠️ Заявка сохранена в CRM, но письмо не отправлено. Мы свяжемся с вами!', false);
     }
     
     const encodedMessage = encodeURIComponent(message);
