@@ -1,7 +1,3 @@
-// ============ TELEGRAM БОТ КОНФИГУРАЦИЯ ============
-const TELEGRAM_BOT_TOKEN = '8537230244:AAF5r2HBejj_o7A3AreAM5qf5UYGKNls0Lc'; // 
-const TELEGRAM_CHAT_ID = '1032144519'; 
-
 // Burger menu
 const burger = document.getElementById('burger');
 const navLinks = document.getElementById('navLinks');
@@ -48,45 +44,6 @@ function showToast(message, isError = false) {
 let scrollPosition = 0;
 function disableScroll() { scrollPosition = window.scrollY; document.body.style.overflow = 'hidden'; document.body.style.position = 'fixed'; document.body.style.top = `-${scrollPosition}px`; document.body.style.width = '100%'; }
 function enableScroll() { document.body.style.overflow = ''; document.body.style.position = ''; document.body.style.top = ''; document.body.style.width = ''; window.scrollTo(0, scrollPosition); }
-
-// ============ ОТПРАВКА В TELEGRAM ============
-async function sendToTelegram(orderData) {
-    const message = `
-🆕 <b>НОВАЯ ЗАЯВКА С WEBCODE!</b>
-
-👤 <b>Имя:</b> ${orderData.name}
-📞 <b>Контакт:</b> ${orderData.contact}
-📋 <b>Услуга:</b> ${orderData.serviceType}
-📝 <b>Детали:</b> ${orderData.details || 'Не указаны'}
-💰 <b>Сумма:</b> ${orderData.finalPrice} ₽
-📅 <b>Дата:</b> ${new Date().toLocaleString('ru-RU')}
-
-🌐 <b>С сайта:</b> WEBCODE
-    `;
-    
-    try {
-        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: message,
-                parse_mode: 'HTML'
-            })
-        });
-        const result = await response.json();
-        if (result.ok) {
-            console.log('✅ Уведомление отправлено в Telegram');
-            return true;
-        } else {
-            console.error('❌ Ошибка Telegram:', result);
-            return false;
-        }
-    } catch (error) {
-        console.error('❌ Ошибка отправки в Telegram:', error);
-        return false;
-    }
-}
 
 // ============ ЗАГРУЗКА ДАННЫХ ============
 let prices = {};
@@ -139,7 +96,7 @@ renderPortfolio();
 
 // ============ ОТЗЫВЫ ============
 const reviewsData = [
-    { name: "Арсен У..", project: "Видеомонтажер", text: "Стильный минималистичный дизайн для портфолио - это вам к этим ребятам )) Спасибо!" },
+    { name: "Анна К.", project: "Владелец кафе", text: "Сделали сайт для моего кафе быстро и качественно. Всё работает идеально, адаптив отличный. Рекомендую WEBCODE!" },
     { name: "Дмитрий В.", project: "Студия дизайна", text: "Профессиональный подход, учли все пожелания. Сайт получился стильным, с калькулятором, как я и хотел. Спасибо команде!" },
     { name: "Елена М.", project: "Интернет-магазин", text: "Быстро, качественно, с душой. Даже после запуска помогали с настройками. Обращусь ещё!" },
     { name: "Михаил С.", project: "Частный клиент", text: "Заказал обработку старых семейных фото. Результат превзошёл ожидания! Фотографии стали как новые, а оживление фото добавило магии." },
@@ -322,9 +279,18 @@ function renderStep() {
             if (val) optionsText += `<li>${getOptionName(key)} (+${getOptionPrice(key)}₽)</li>`;
         }
         
-        container.innerHTML = `<div class="order-summary"><h3>Ваш заказ</h3><p><strong>Услуга:</strong> ${serviceName}</p><p><strong>Параметры:</strong> ${details}</p>${optionsText ? `<p><strong>Дополнительно:</strong><ul>${optionsText}</ul></p>` : ''}<p><strong>Итоговая стоимость:</strong> ${total} ₽</p><button class="btn btn-primary" id="submitFinalOrderBtn" style="margin-top:20px;">Оформить заказ</button></div>`;
-        const submitBtn = document.getElementById('submitFinalOrderBtn');
-        if (submitBtn) submitBtn.addEventListener('click', () => showOrderModal(total, serviceName, details));
+        container.innerHTML = `
+            <div class="order-summary">
+                <h3>Ваш заказ</h3>
+                <p><strong>Услуга:</strong> ${serviceName}</p>
+                <p><strong>Параметры:</strong> ${details}</p>
+                ${optionsText ? `<p><strong>Дополнительно:</strong><ul>${optionsText}</ul></p>` : ''}
+                <p><strong>Итоговая стоимость:</strong> ${total} ₽</p>
+                <a href="https://vk.com/krdwebcode" target="_blank" class="btn btn-primary" id="submitFinalOrderBtn" style="margin-top:20px; display:inline-block; text-decoration:none;">
+                    <i class="fab fa-vk"></i> Написать в сообщество
+                </a>
+            </div>
+        `;
     }
     updateProgressBar();
     updateNavButtons();
@@ -350,75 +316,6 @@ const prevBtn = document.getElementById('prevStepBtn');
 const nextBtn = document.getElementById('nextStepBtn');
 if (prevBtn) prevBtn.addEventListener('click', prevStep);
 if (nextBtn) nextBtn.addEventListener('click', nextStep);
-
-function showOrderModal(total, serviceName, details) {
-    const modal = document.getElementById('orderFormModal');
-    const summary = document.getElementById('orderSummary');
-    if (summary) summary.innerHTML = `<strong>${serviceName}</strong><br>${details}<br><strong>Итого: ${total} ₽</strong>`;
-    if (modal) modal.style.display = 'flex';
-    window.currentOrderData = { total, serviceName, details };
-    disableScroll();
-}
-
-const closeOrderModal = document.getElementById('closeOrderModal');
-if (closeOrderModal) {
-    closeOrderModal.addEventListener('click', () => { 
-        document.getElementById('orderFormModal').style.display = 'none'; 
-        enableScroll(); 
-    });
-}
-
-const orderConsent = document.getElementById('orderConsent');
-const submitOrderBtn = document.getElementById('submitOrderBtn');
-if (orderConsent) {
-    orderConsent.addEventListener('change', (e) => { 
-        if (submitOrderBtn) submitOrderBtn.disabled = !e.target.checked; 
-    });
-}
-
-const orderForm = document.getElementById('orderForm');
-if (orderForm) {
-    orderForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('orderName')?.value;
-        const phone = document.getElementById('orderPhone')?.value;
-        const email = document.getElementById('orderEmail')?.value;
-        if (!name || !phone) { showToast('Заполните имя и телефон', true); return; }
-        if (!orderConsent?.checked) { showToast('Примите согласие на обработку данных', true); return; }
-        
-        const order = {
-            id: Date.now(),
-            date: new Date().toLocaleString('ru-RU'),
-            name: name,
-            contact: phone + (email ? ` (${email})` : ''),
-            serviceType: window.currentOrderData.serviceName,
-            details: window.currentOrderData.details,
-            finalPrice: window.currentOrderData.total,
-            status: 'pending'
-        };
-        
-        let applications = JSON.parse(localStorage.getItem('webcode_applications') || '[]');
-        applications.unshift(order);
-        localStorage.setItem('webcode_applications', JSON.stringify(applications));
-        
-        showToast('⏳ Отправка заявки...');
-        const success = await sendToTelegram(order);
-        
-        if (success) {
-            showToast('✅ Заявка отправлена! Мы свяжемся с вами');
-        } else {
-            showToast('⚠️ Заявка сохранена в CRM. Мы свяжемся с вами в ближайшее время!', false);
-        }
-        
-        document.getElementById('orderFormModal').style.display = 'none';
-        enableScroll();
-        orderForm.reset();
-        if (orderConsent) orderConsent.checked = false;
-        if (submitOrderBtn) submitOrderBtn.disabled = true;
-        selectedService = null; serviceParams = {}; selectedOptions = {}; currentStep = 1;
-        renderStep();
-    });
-}
 
 // ============ ФОТО КАЛЬКУЛЯТОР ============
 let photoCount = 1, photoType = 'retouch', photoColorize = false, photoAnimate = false, photoDeadline = 4;
@@ -470,56 +367,22 @@ function updatePhotoMessagePreview() {
     if (preview) preview.innerHTML = generatePhotoOrderMessage().replace(/\n/g, '<br>');
 }
 
-async function sendPhotoOrder() {
+function sendPhotoOrderToVK() {
     const message = generatePhotoOrderMessage();
-    const name = prompt('Введите ваше имя для оформления заявки:');
-    const phone = prompt('Введите ваш телефон для связи:');
-    if (!name || !phone) {
-        showToast('Необходимо указать имя и телефон для оформления заявки', true);
-        return;
-    }
-    const finalPrice = getPhotoFinalPrice();
-    const serviceName = 'Обработка фотографий';
-    let details = `Количество фото: ${photoCount}\nТип: ${photoType === 'retouch' ? 'Ретушь' : 'Восстановление'}`;
-    if (photoColorize) details += `\nСделать цветным: Да (+${prices.photoColorize}₽/шт)`;
-    if (photoAnimate) details += `\nОживление: Да (+${prices.photoAnimate}₽/шт)`;
-    details += `\nСрок: ${photoDeadline} дней`;
-    
-    const order = {
-        id: Date.now(),
-        date: new Date().toLocaleString('ru-RU'),
-        name: name,
-        contact: phone,
-        serviceType: serviceName,
-        details: details,
-        finalPrice: finalPrice,
-        status: 'pending'
-    };
-    
-    let applications = JSON.parse(localStorage.getItem('webcode_applications') || '[]');
-    applications.unshift(order);
-    localStorage.setItem('webcode_applications', JSON.stringify(applications));
-    
-    showToast('⏳ Отправка заявки...');
-    const success = await sendToTelegram(order);
-    
-    if (success) {
-        showToast('✅ Заявка отправлена! Мы свяжемся с вами');
-    } else {
-        showToast('⚠️ Заявка сохранена в CRM. Мы свяжемся с вами!', false);
-    }
-    
     const encodedMessage = encodeURIComponent(message);
     const vkGroupLink = `https://vk.com/write-225202490?message=${encodedMessage}`;
+    
     const orderMessage = document.getElementById('photoOrderMessage');
-    if (orderMessage) {
-        orderMessage.innerHTML = `✅ Заявка отправлена! Открывается диалог с сообществом...`;
-        orderMessage.classList.add('success');
-        orderMessage.style.display = 'block';
-    }
-    setTimeout(() => window.open(vkGroupLink, '_blank'), 500);
+    orderMessage.innerHTML = `✅ Сообщение сформировано! Открывается диалог с сообществом...`;
+    orderMessage.classList.add('success');
+    orderMessage.style.display = 'block';
+    
     setTimeout(() => {
-        if (orderMessage) orderMessage.style.display = 'none';
+        window.open(vkGroupLink, '_blank');
+    }, 500);
+    
+    setTimeout(() => {
+        orderMessage.style.display = 'none';
     }, 5000);
 }
 
@@ -545,7 +408,7 @@ if (photoDeadlineSlider) {
         updatePhotoTotal(); 
     });
 }
-if (photoOrderBtn) photoOrderBtn.addEventListener('click', sendPhotoOrder);
+if (photoOrderBtn) photoOrderBtn.addEventListener('click', sendPhotoOrderToVK);
 if (copyPhotoPreviewBtn) copyPhotoPreviewBtn.addEventListener('click', () => copyToClipboard(generatePhotoOrderMessage()));
 
 async function copyToClipboard(text) { 
