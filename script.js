@@ -1,3 +1,15 @@
+// ============ APPWRITE КОНФИГУРАЦИЯ ============
+const APPWRITE_ENDPOINT = 'https://cloud.appwrite.io/v1';
+const APPWRITE_PROJECT_ID = '69e33ab700043f0c90a7';
+const APPWRITE_DATABASE_ID = '69e33b260037b4502c08';
+const APPWRITE_COLLECTION_ID = 'applications';
+const APPWRITE_API_KEY = 'standard_a258a7c254d1a1b93fb884f8dd56593553ea29462149541b1254c6d43b7f3b78fc3ffaf865bd5549ac89cb8f0e0297c8174a2ddff4bd244af9e9c108bdd7d83db339d0aa8ef7e0ea4c611cb4692799f6e97184b5e9102ca9e1e676685ff866bf67ee7a23b0031f47f41d280b6ce44cd26f9c015b35e3c997b562d1741236ef41';
+
+// Инициализация Appwrite
+const client = new Appwrite.Client();
+client.setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID).setKey(APPWRITE_API_KEY);
+const databases = new Appwrite.Databases(client);
+
 // Burger menu
 const burger = document.getElementById('burger');
 const navLinks = document.getElementById('navLinks');
@@ -57,6 +69,31 @@ function loadPrices() {
 }
 loadPrices();
 
+// ============ СОХРАНЕНИЕ ЗАЯВКИ В APPWRITE ============
+async function saveApplicationToAppwrite(application) {
+    try {
+        const response = await databases.createDocument(
+            APPWRITE_DATABASE_ID,
+            APPWRITE_COLLECTION_ID,
+            'unique()',
+            {
+                name: application.name,
+                contact: application.contact,
+                serviceType: application.serviceType,
+                details: application.details || '',
+                finalPrice: application.finalPrice,
+                status: application.status || 'pending',
+                date: application.date
+            }
+        );
+        console.log('✅ Заявка сохранена в Appwrite:', response);
+        return { success: true, id: response.$id };
+    } catch (error) {
+        console.error('❌ Ошибка сохранения в Appwrite:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // ============ ПОРТФОЛИО ============
 function loadPortfolio() {
     const saved = localStorage.getItem('webcode_portfolio');
@@ -93,7 +130,7 @@ loadPortfolio();
 
 // ============ ОТЗЫВЫ ============
 const reviewsData = [
-    { name: "Арсен У.", project: "Видеомонтажер", text: "Стильный минималистичный дизайн для портфолио - это вам к этим ребятам ))\n" + "Спасибо!" },
+    { name: "Анна К.", project: "Владелец кафе", text: "Сделали сайт для моего кафе быстро и качественно. Всё работает идеально, адаптив отличный. Рекомендую WEBCODE!" },
     { name: "Дмитрий В.", project: "Студия дизайна", text: "Профессиональный подход, учли все пожелания. Сайт получился стильным, с калькулятором, как я и хотел. Спасибо команде!" },
     { name: "Елена М.", project: "Интернет-магазин", text: "Быстро, качественно, с душой. Даже после запуска помогали с настройками. Обращусь ещё!" },
     { name: "Михаил С.", project: "Частный клиент", text: "Заказал обработку старых семейных фото. Результат превзошёл ожидания! Фотографии стали как новые, а оживление фото добавило магии." },
@@ -265,18 +302,40 @@ function showOrderModal(total, serviceName, details) {
 }
 document.getElementById('closeOrderModal')?.addEventListener('click', () => { document.getElementById('orderFormModal').style.display = 'none'; enableScroll(); });
 document.getElementById('orderConsent')?.addEventListener('change', (e) => { document.getElementById('submitOrderBtn').disabled = !e.target.checked; });
-document.getElementById('orderForm')?.addEventListener('submit', (e) => {
+document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('orderName').value;
     const phone = document.getElementById('orderPhone').value;
     const email = document.getElementById('orderEmail').value;
     if (!name || !phone) { showToast('Заполните имя и телефон', true); return; }
     if (!document.getElementById('orderConsent').checked) { showToast('Примите согласие на обработку данных', true); return; }
-    const order = { id: Date.now(), date: new Date().toLocaleString('ru-RU'), name, contact: phone + (email ? ` (${email})` : ''), serviceType: window.currentOrderData.serviceName, finalPrice: window.currentOrderData.total, status: 'pending' };
+    
+    const order = {
+        id: Date.now(),
+        date: new Date().toLocaleString('ru-RU'),
+        name: name,
+        contact: phone + (email ? ` (${email})` : ''),
+        serviceType: window.currentOrderData.serviceName,
+        details: window.currentOrderData.details,
+        finalPrice: window.currentOrderData.total,
+        status: 'pending'
+    };
+    
+    // Сохраняем в localStorage (резервная копия)
     let applications = JSON.parse(localStorage.getItem('webcode_applications') || '[]');
     applications.unshift(order);
     localStorage.setItem('webcode_applications', JSON.stringify(applications));
-    showToast('Заявка отправлена! Мы свяжемся с вами');
+    
+    // Сохраняем в Appwrite (облако)
+    showToast('⏳ Отправка заявки...');
+    const result = await saveApplicationToAppwrite(order);
+    
+    if (result.success) {
+        showToast('✅ Заявка отправлена! Мы свяжемся с вами');
+    } else {
+        showToast('⚠️ Заявка сохранена локально, но не отправлена в облако', true);
+    }
+    
     document.getElementById('orderFormModal').style.display = 'none';
     enableScroll();
     document.getElementById('orderForm').reset();
@@ -323,13 +382,46 @@ function updatePhotoMessagePreview() {
     const preview = document.getElementById('photoPreviewContent');
     if (preview) preview.innerHTML = generatePhotoOrderMessage().replace(/\n/g, '<br>');
 }
-function sendPhotoOrderToVK() {
+async function sendPhotoOrderToAppwrite() {
     const message = generatePhotoOrderMessage();
+    const name = prompt('Введите ваше имя для оформления заявки:');
+    const phone = prompt('Введите ваш телефон для связи:');
+    if (!name || !phone) {
+        showToast('Необходимо указать имя и телефон для оформления заявки', true);
+        return;
+    }
+    const finalPrice = getPhotoFinalPrice();
+    const serviceName = 'Обработка фотографий';
+    let details = `Количество фото: ${photoCount}\nТип: ${photoType === 'retouch' ? 'Ретушь' : 'Восстановление'}`;
+    if (photoColorize) details += `\nСделать цветным: Да (+${prices.photoColorize}₽/шт)`;
+    if (photoAnimate) details += `\nОживление: Да (+${prices.photoAnimate}₽/шт)`;
+    details += `\nСрок: ${photoDeadline} дней`;
+    const order = {
+        id: Date.now(),
+        date: new Date().toLocaleString('ru-RU'),
+        name: name,
+        contact: phone,
+        serviceType: serviceName,
+        details: details,
+        finalPrice: finalPrice,
+        status: 'pending'
+    };
+    let applications = JSON.parse(localStorage.getItem('webcode_applications') || '[]');
+    applications.unshift(order);
+    localStorage.setItem('webcode_applications', JSON.stringify(applications));
+    showToast('⏳ Отправка заявки...');
+    const result = await saveApplicationToAppwrite(order);
+    if (result.success) {
+        showToast('✅ Заявка отправлена! Мы свяжемся с вами');
+    } else {
+        showToast('⚠️ Заявка сохранена локально', true);
+    }
     const encodedMessage = encodeURIComponent(message);
     const vkGroupLink = `https://vk.com/write-225202490?message=${encodedMessage}`;
     const orderMessage = document.getElementById('photoOrderMessage');
-    orderMessage.innerHTML = `✅ Сообщение сформировано! Открывается диалог с сообществом...`;
-    orderMessage.classList.add('success'); orderMessage.style.display = 'block';
+    orderMessage.innerHTML = `✅ Заявка отправлена! Открывается диалог с сообществом...`;
+    orderMessage.classList.add('success');
+    orderMessage.style.display = 'block';
     setTimeout(() => window.open(vkGroupLink, '_blank'), 500);
     setTimeout(() => orderMessage.style.display = 'none', 5000);
 }
@@ -339,7 +431,7 @@ document.getElementById('photoRestore')?.addEventListener('change', () => { if (
 document.getElementById('photoColorize')?.addEventListener('change', (e) => { photoColorize = e.target.checked; updatePhotoTotal(); });
 document.getElementById('photoAnimate')?.addEventListener('change', (e) => { photoAnimate = e.target.checked; updatePhotoTotal(); });
 document.getElementById('photoDeadlineSlider')?.addEventListener('input', (e) => { photoDeadline = parseInt(e.target.value); document.getElementById('photoDeadlineValue').innerText = photoDeadline; updatePhotoTotal(); });
-document.getElementById('photoOrderBtn')?.addEventListener('click', sendPhotoOrderToVK);
+document.getElementById('photoOrderBtn')?.addEventListener('click', sendPhotoOrderToAppwrite);
 document.getElementById('copyPhotoPreviewBtn')?.addEventListener('click', () => copyToClipboard(generatePhotoOrderMessage()));
 async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); showToast('✅ Сообщение скопировано!'); } catch (err) { showToast('❌ Ошибка копирования', true); } }
 
