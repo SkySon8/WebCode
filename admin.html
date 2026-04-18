@@ -1,148 +1,177 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WEBCODE | Административная панель</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #f0f0f0; }
-    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-    .login-container { max-width: 400px; margin: 100px auto; background: #12121a; padding: 40px; border-radius: 24px; text-align: center; }
-    .login-container input { width: 100%; padding: 12px; margin: 15px 0; background: #1e1e2a; border: 1px solid #2a2a35; border-radius: 12px; color: white; }
-    .btn { padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer; font-weight: 600; }
-    .btn-primary { background: linear-gradient(135deg, #a855f7, #3b82f6); color: white; }
-    .btn-danger { background: #dc2626; color: white; }
-    .btn-success { background: #22c55e; color: white; }
-    .btn-warning { background: #f59e0b; color: white; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-    .tab-btn { padding: 10px 24px; background: #1a1a2e; border: none; border-radius: 50px; color: #fff; cursor: pointer; }
-    .tab-btn.active { background: linear-gradient(135deg, #a855f7, #3b82f6); }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: #12121a; padding: 20px; border-radius: 16px; text-align: center; }
-    .stat-card .number { font-size: 2rem; font-weight: 700; color: #a855f7; }
-    .admin-table { background: #12121a; border-radius: 16px; overflow-x: auto; padding: 20px; margin-top: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a2a35; }
-    th { color: #a855f7; }
-    .status-select { padding: 5px 10px; border-radius: 20px; background: #1e1e2a; color: white; border: 1px solid #2a2a35; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; color: #a855f7; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; background: #1e1e2a; border: 1px solid #2a2a35; border-radius: 8px; color: white; }
-    .price-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-    .price-item { background: #1e1e2a; padding: 15px; border-radius: 12px; }
-    .price-item input { width: 100%; margin-top: 5px; }
-    .portfolio-form { background: #1e1e2a; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
-    @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .price-group { grid-template-columns: 1fr; } table { font-size: 12px; } th, td { padding: 8px; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEBCODE | CRM Админ-панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@11.0.0"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #f0f0f0; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .login-container { max-width: 400px; margin: 100px auto; background: #12121a; padding: 40px; border-radius: 24px; text-align: center; }
+        .login-container input { width: 100%; padding: 12px; margin: 15px 0; background: #1e1e2a; border: 1px solid #2a2a35; border-radius: 12px; color: white; }
+        .btn { padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-primary { background: linear-gradient(135deg, #a855f7, #3b82f6); color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-success { background: #22c55e; color: white; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 24px; background: #1a1a2e; border: none; border-radius: 50px; color: #fff; cursor: pointer; }
+        .tab-btn.active { background: linear-gradient(135deg, #a855f7, #3b82f6); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #12121a; padding: 20px; border-radius: 16px; text-align: center; }
+        .stat-card .number { font-size: 2rem; font-weight: 700; color: #a855f7; }
+        .admin-table { background: #12121a; border-radius: 16px; overflow-x: auto; padding: 20px; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a2a35; }
+        th { color: #a855f7; }
+        .status-select { padding: 5px 10px; border-radius: 20px; background: #1e1e2a; color: white; border: 1px solid #2a2a35; }
+        .sync-status { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
+        .sync-status.success { background: #22c55e; color: white; }
+        .sync-status.error { background: #ef4444; color: white; }
+        .sync-status.syncing { background: #f59e0b; color: white; }
+        @media (max-width: 768px) { th, td { font-size: 12px; padding: 8px; } }
+    </style>
 </head>
 <body>
-<div id="app"></div>
-<script>
-  const ADMIN_LOGIN = 'wcadmin';
-  const ADMIN_PASSWORD = '!QAZ2wsx3edc';
-  let isAuth = false, currentTab = 'dashboard', applications = [], portfolioItems = [], prices = {};
-
-  function loadData() {
-    applications = JSON.parse(localStorage.getItem('webcode_applications') || '[]');
-    portfolioItems = JSON.parse(localStorage.getItem('webcode_portfolio') || JSON.stringify([
-      { id: 1, title: "Gourmet Restaurant", description: "Сайт ресторана с онлайн-бронированием", image: "images/project1.png", link: "https://skyson8.github.io/Gourmet-Food/", year: "2025", days: "21", tags: ["HTML5","CSS3","JavaScript","React","Node.js"] },
-      { id: 2, title: "IT AURORA", description: "Лендинг для IT-компании", image: "images/project2.png", link: "https://skyson8.github.io/Aurora/", year: "2024", days: "14", tags: ["HTML5","CSS3","JavaScript","GSAP"] },
-      { id: 3, title: "Business Group", description: "Корпоративный сайт с CRM", image: "images/project3.png", link: "https://skyson8.github.io/BusinessGroup/", year: "2025", days: "28", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] },
-      { id: 4, title: "Точка Моды", description: "Интернет-магазин одежды", image: "images/project4.png", link: "https://skyson8.github.io/tochkamody/", year: "2026", days: "21", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] },
-      { id: 5, title: "Портфолио монтажера", description: "Сайт-визитка видеомонтажера", image: "images/project5.png", link: "https://www.portfolio-arsen-useinov.ru", year: "2026", days: "7", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] }
-    ]));
-    const savedPrices = localStorage.getItem('webcode_prices');
-    if (savedPrices) prices = JSON.parse(savedPrices);
-    else {
-      prices = {
-        designBase: 1500, designPerBlock: 500,
-        devBase: 8000, devPerPage: 700, devPerBlock: 400,
-        fullBase: 7000, fullPerPage: 700, fullPerBlock: 400,
-        shopBase: 50000,
-        adaptive: 650, hosting: 650, support: 500, calculator: 1500, delivery: 2000, crm: 2000, payment: 5000, adminPanel: 1700,
-        photoRetouch: 150, photoRestore: 200, photoColorize: 50, photoAnimate: 50
-      };
-      localStorage.setItem('webcode_prices', JSON.stringify(prices));
-    }
-  }
-  function saveApplications() { localStorage.setItem('webcode_applications', JSON.stringify(applications)); }
-  function savePortfolio() { localStorage.setItem('webcode_portfolio', JSON.stringify(portfolioItems)); }
-  function savePrices() { localStorage.setItem('webcode_prices', JSON.stringify(prices)); }
-  function getRevenue() { return applications.filter(a => a.status === 'completed').reduce((s, a) => s + (a.finalPrice || 0), 0); }
-  function checkAuth() { if (localStorage.getItem('webcode_admin_auth') === 'true') { isAuth = true; loadData(); renderAdmin(); } else renderLogin(); }
-  function renderLogin() {
-    document.getElementById('app').innerHTML = `<div class="login-container"><h2>🔐 Вход в админ-панель</h2><input type="text" id="loginInput" placeholder="Логин"><input type="password" id="passwordInput" placeholder="Пароль"><button class="btn btn-primary" onclick="login()">Войти</button></div>`;
-  }
-  function login() {
-    if (document.getElementById('loginInput').value === ADMIN_LOGIN && document.getElementById('passwordInput').value === ADMIN_PASSWORD) {
-      localStorage.setItem('webcode_admin_auth', 'true'); isAuth = true; loadData(); renderAdmin();
-    } else alert('Неверный логин или пароль');
-  }
-  function logout() { localStorage.removeItem('webcode_admin_auth'); isAuth = false; renderLogin(); }
-  function renderAdmin() {
-    let total = applications.length, pending = applications.filter(a => a.status === 'pending').length;
-    let inProgress = applications.filter(a => a.status === 'in_progress').length, completed = applications.filter(a => a.status === 'completed').length;
-    let revenue = getRevenue();
-    let content = `<div class="container"><div class="admin-header"><h1>WEBCODE Админ-панель</h1><button class="btn btn-danger" onclick="logout()">Выйти</button></div>
+    <div id="app"></div>
+    <script>
+        // ============ APPWRITE КОНФИГУРАЦИЯ ============
+        const APPWRITE_ENDPOINT = 'https://cloud.appwrite.io/v1';
+        const APPWRITE_PROJECT_ID = '69e33ab700043f0c90a7';
+        const APPWRITE_DATABASE_ID = '69e33b260037b4502c08';
+        const APPWRITE_COLLECTION_ID = 'applications';
+        const APPWRITE_API_KEY = 'standard_a258a7c254d1a1b93fb884f8dd56593553ea29462149541b1254c6d43b7f3b78fc3ffaf865bd5549ac89cb8f0e0297c8174a2ddff4bd244af9e9c108bdd7d83db339d0aa8ef7e0ea4c611cb4692799f6e97184b5e9102ca9e1e676685ff866bf67ee7a23b0031f47f41d280b6ce44cd26f9c015b35e3c997b562d1741236ef41';
+        
+        const ADMIN_LOGIN = 'wcadmin';
+        const ADMIN_PASSWORD = '!QAZ2wsx3edc';
+        
+        let isAuth = false;
+        let currentTab = 'dashboard';
+        let applications = [];
+        let syncStatus = { status: 'success', message: '' };
+        
+        const client = new Appwrite.Client();
+        client.setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID).setKey(APPWRITE_API_KEY);
+        const databases = new Appwrite.Databases(client);
+        
+        async function loadApplicationsFromAppwrite() {
+            syncStatus = { status: 'syncing', message: 'Загрузка...' };
+            renderAdmin();
+            try {
+                const response = await databases.listDocuments(
+                    APPWRITE_DATABASE_ID,
+                    APPWRITE_COLLECTION_ID,
+                    [Appwrite.Query.orderDesc('$createdAt'), Appwrite.Query.limit(100)]
+                );
+                applications = response.documents.map(doc => ({
+                    id: doc.$id,
+                    name: doc.name,
+                    contact: doc.contact,
+                    serviceType: doc.serviceType,
+                    details: doc.details,
+                    finalPrice: doc.finalPrice,
+                    status: doc.status,
+                    date: doc.date
+                }));
+                syncStatus = { status: 'success', message: `Загружено ${applications.length} заявок` };
+                localStorage.setItem('webcode_applications', JSON.stringify(applications));
+            } catch (error) {
+                console.error('Ошибка загрузки из Appwrite:', error);
+                syncStatus = { status: 'error', message: 'Ошибка подключения к облаку' };
+                const saved = localStorage.getItem('webcode_applications');
+                applications = saved ? JSON.parse(saved) : [];
+            }
+            renderAdmin();
+        }
+        
+        async function updateStatusInAppwrite(id, newStatus) {
+            try {
+                await databases.updateDocument(APPWRITE_DATABASE_ID, APPWRITE_COLLECTION_ID, id, { status: newStatus });
+                const app = applications.find(a => a.id === id);
+                if (app) app.status = newStatus;
+                localStorage.setItem('webcode_applications', JSON.stringify(applications));
+                showToast('Статус обновлён');
+                renderAdmin();
+            } catch (error) {
+                console.error('Ошибка обновления статуса:', error);
+                showToast('Ошибка обновления статуса', true);
+            }
+        }
+        
+        async function deleteApplicationFromAppwrite(id) {
+            if (!confirm('Удалить заявку?')) return;
+            try {
+                await databases.deleteDocument(APPWRITE_DATABASE_ID, APPWRITE_COLLECTION_ID, id);
+                applications = applications.filter(a => a.id !== id);
+                localStorage.setItem('webcode_applications', JSON.stringify(applications));
+                showToast('Заявка удалена');
+                renderAdmin();
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                showToast('Ошибка удаления', true);
+            }
+        }
+        
+        function getRevenue() { return applications.filter(a => a.status === 'completed').reduce((s, a) => s + (a.finalPrice || 0), 0); }
+        function getStatusText(s) { return { pending: 'В обработке', in_progress: 'В процессе', completed: 'Выполнено', rejected: 'Отклонено' }[s] || s; }
+        function getStatusOptions(s) { return ['pending','in_progress','completed','rejected'].map(v => `<option value="${v}" ${s===v?'selected':''}>${getStatusText(v)}</option>`).join(''); }
+        
+        function checkAuth() { if (localStorage.getItem('webcode_admin_auth') === 'true') { isAuth = true; loadApplicationsFromAppwrite(); } else renderLogin(); }
+        function renderLogin() { document.getElementById('app').innerHTML = `<div class="login-container"><h2>🔐 Вход в CRM</h2><input type="text" id="loginInput" placeholder="Логин"><input type="password" id="passwordInput" placeholder="Пароль"><button class="btn btn-primary" onclick="login()">Войти</button></div>`; }
+        function login() { if (document.getElementById('loginInput').value === ADMIN_LOGIN && document.getElementById('passwordInput').value === ADMIN_PASSWORD) { localStorage.setItem('webcode_admin_auth', 'true'); isAuth = true; loadApplicationsFromAppwrite(); } else alert('Неверный логин или пароль'); }
+        function logout() { localStorage.removeItem('webcode_admin_auth'); isAuth = false; renderLogin(); }
+        
+        function renderAdmin() {
+            let total = applications.length, pending = applications.filter(a => a.status === 'pending').length;
+            let inProgress = applications.filter(a => a.status === 'in_progress').length, completed = applications.filter(a => a.status === 'completed').length;
+            let revenue = getRevenue();
+            let syncClass = syncStatus.status === 'success' ? 'success' : (syncStatus.status === 'error' ? 'error' : 'syncing');
+            let syncIcon = syncStatus.status === 'success' ? '✅' : (syncStatus.status === 'error' ? '⚠️' : '🔄');
+            
+            let content = `<div class="container"><div class="admin-header"><h1>WEBCODE CRM</h1><button class="btn btn-danger" onclick="logout()">Выйти</button></div>
             <div class="tabs"><button class="tab-btn ${currentTab === 'dashboard' ? 'active' : ''}" onclick="setTab('dashboard')">📊 Дашборд</button>
-            <button class="tab-btn ${currentTab === 'crm' ? 'active' : ''}" onclick="setTab('crm')">📋 CRM (${total})</button>
-            <button class="tab-btn ${currentTab === 'prices' ? 'active' : ''}" onclick="setTab('prices')">💰 Настройка цен</button>
-            <button class="tab-btn ${currentTab === 'portfolio' ? 'active' : ''}" onclick="setTab('portfolio')">🖼️ Портфолио</button></div>`;
-    if (currentTab === 'dashboard') {
-      content += `<div class="stats-grid"><div class="stat-card"><div class="number">${total}</div><div>Всего заявок</div></div>
+            <button class="tab-btn ${currentTab === 'crm' ? 'active' : ''}" onclick="setTab('crm')">📋 Заявки (${total})</button>
+            <button class="tab-btn ${currentTab === 'sync' ? 'active' : ''}" onclick="setTab('sync')">🔄 Синхронизация</button></div>
+            <div class="sync-status ${syncClass}">${syncIcon} ${syncStatus.message}</div>`;
+            
+            if (currentTab === 'dashboard') {
+                content += `<div class="stats-grid"><div class="stat-card"><div class="number">${total}</div><div>Всего заявок</div></div>
                 <div class="stat-card"><div class="number">${pending}</div><div>В обработке</div></div>
                 <div class="stat-card"><div class="number">${inProgress}</div><div>В процессе</div></div>
                 <div class="stat-card"><div class="number">${completed}</div><div>Выполнено</div></div>
                 <div class="stat-card"><div class="number">${revenue.toLocaleString()} ₽</div><div>Доход</div></div></div>
-                <div class="admin-table"><h3>Последние 5 заявок</h3><table><thead><tr><th>ID</th><th>Дата</th><th>Услуга</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>
-                ${applications.slice(0,5).map(a => `<tr><td>${a.id}</td><td>${a.date}</td><td>${a.serviceType}</td><td>${a.finalPrice} ₽</td><td>${getStatusText(a.status)}</td></tr>`).join('')}
-                ${applications.length === 0 ? '<tr><td colspan="5">Нет заявок</td></tr>' : ''}</tbody></table></div>`;
-    } else if (currentTab === 'crm') {
-      content += `<div class="admin-table"><h3>Все заявки</h3><table><thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Контакт</th><th>Услуга</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead><tbody>
-                ${applications.map(a => `<tr><td>${a.id}</td><td>${a.date}</td><td>${a.name}</td><td>${a.contact}</td><td>${a.serviceType}</td><td>${a.finalPrice} ₽</td>
-                <td><select class="status-select" onchange="updateStatus(${a.id}, this.value)">${getStatusOptions(a.status)}</select></td>
-                <td><button class="btn btn-danger" style="padding:5px 10px;" onclick="deleteApp(${a.id})">Удалить</button></td></tr>`).join('')}
-                ${applications.length === 0 ? '<tr><td colspan="8">Нет заявок</td></tr>' : ''}</tbody></table></div>`;
-    } else if (currentTab === 'prices') {
-      content += `<div class="price-group"><div class="price-item"><h4>Разработка макета</h4><label>Базовая: <input type="number" value="${prices.designBase}" onchange="updatePrice('designBase', this.value)"></label><label>За блок: <input type="number" value="${prices.designPerBlock}" onchange="updatePrice('designPerBlock', this.value)"></label></div>
-                <div class="price-item"><h4>Вёрстка/Программирование</h4><label>Базовая: <input type="number" value="${prices.devBase}" onchange="updatePrice('devBase', this.value)"></label><label>За страницу: <input type="number" value="${prices.devPerPage}" onchange="updatePrice('devPerPage', this.value)"></label><label>За блок: <input type="number" value="${prices.devPerBlock}" onchange="updatePrice('devPerBlock', this.value)"></label></div>
-                <div class="price-item"><h4>Сайт под ключ</h4><label>Базовая: <input type="number" value="${prices.fullBase}" onchange="updatePrice('fullBase', this.value)"></label><label>За страницу: <input type="number" value="${prices.fullPerPage}" onchange="updatePrice('fullPerPage', this.value)"></label><label>За блок: <input type="number" value="${prices.fullPerBlock}" onchange="updatePrice('fullPerBlock', this.value)"></label></div>
-                <div class="price-item"><h4>Интернет-магазин</h4><label>Базовая: <input type="number" value="${prices.shopBase}" onchange="updatePrice('shopBase', this.value)"></label></div>
-                <div class="price-item"><h4>Дополнительные опции</h4><label>Адаптация: <input type="number" value="${prices.adaptive}" onchange="updatePrice('adaptive', this.value)"></label><label>Хостинг+домен: <input type="number" value="${prices.hosting}" onchange="updatePrice('hosting', this.value)"></label><label>Поддержка: <input type="number" value="${prices.support}" onchange="updatePrice('support', this.value)"></label><label>Калькулятор: <input type="number" value="${prices.calculator}" onchange="updatePrice('calculator', this.value)"></label><label>CDEK: <input type="number" value="${prices.delivery}" onchange="updatePrice('delivery', this.value)"></label><label>CRM: <input type="number" value="${prices.crm}" onchange="updatePrice('crm', this.value)"></label><label>Онлайн оплата: <input type="number" value="${prices.payment}" onchange="updatePrice('payment', this.value)"></label><label>Админ-панель: <input type="number" value="${prices.adminPanel}" onchange="updatePrice('adminPanel', this.value)"></label></div>
-                <div class="price-item"><h4>Обработка фото</h4><label>Ретушь: <input type="number" value="${prices.photoRetouch}" onchange="updatePrice('photoRetouch', this.value)"></label><label>Восстановление: <input type="number" value="${prices.photoRestore}" onchange="updatePrice('photoRestore', this.value)"></label><label>Оживление: <input type="number" value="${prices.photoAnimate}" onchange="updatePrice('photoAnimate', this.value)"></label><label>Цвет: <input type="number" value="${prices.photoColorize}" onchange="updatePrice('photoColorize', this.value)"></label></div></div>`;
-    } else if (currentTab === 'portfolio') {
-      content += `<div class="portfolio-form"><h3>➕ Добавить проект</h3><div class="form-group"><label>Название</label><input type="text" id="newTitle"></div>
-                <div class="form-group"><label>Описание</label><textarea id="newDesc" rows="2"></textarea></div>
-                <div class="form-group"><label>Путь к изображению</label><input type="text" id="newImage" placeholder="images/projectX.png"></div>
-                <div class="form-group"><label>Ссылка на сайт</label><input type="text" id="newLink"></div>
-                <div class="form-group"><label>Год</label><input type="text" id="newYear"></div>
-                <div class="form-group"><label>Срок (дней)</label><input type="text" id="newDays"></div>
-                <div class="form-group"><label>Технологии (через запятую)</label><input type="text" id="newTags" placeholder="HTML5, CSS3, JavaScript"></div>
-                <button class="btn btn-primary" onclick="addPortfolio()">Добавить</button></div>
-                <div class="admin-table"><h3>Список проектов</h3><table><thead><tr><th>ID</th><th>Изображение</th><th>Название</th><th>Ссылка</th><th>Действия</th></tr></thead><tbody>
-                ${portfolioItems.map(i => `<tr><td>${i.id}</td><td><img src="${i.image}" width="50" height="50" style="object-fit:cover;border-radius:8px"></td><td>${i.title}</td><td><a href="${i.link}" target="_blank">${i.link.substring(0,30)}</a></td><td><button class="btn btn-warning" onclick="editPortfolio(${i.id})">✏️</button> <button class="btn btn-danger" onclick="deletePortfolio(${i.id})">🗑️</button></td></tr>`).join('')}
-                </tbody></table></div>`;
-    }
-    document.getElementById('app').innerHTML = content + `</div>`;
-  }
-  function getStatusText(s) { return { pending: 'В обработке', in_progress: 'В процессе', completed: 'Выполнено', rejected: 'Отклонено' }[s] || s; }
-  function getStatusOptions(s) { return ['pending','in_progress','completed','rejected'].map(v => `<option value="${v}" ${s===v?'selected':''}>${getStatusText(v)}</option>`).join(''); }
-  function updateStatus(id, status) { let app = applications.find(a => a.id === id); if (app) { app.status = status; saveApplications(); renderAdmin(); } }
-  function deleteApp(id) { applications = applications.filter(a => a.id !== id); saveApplications(); renderAdmin(); }
-  function updatePrice(key, val) { prices[key] = parseInt(val); savePrices(); }
-  function addPortfolio() {
-    let newId = Math.max(...portfolioItems.map(p => p.id), 0) + 1;
-    portfolioItems.push({ id: newId, title: document.getElementById('newTitle').value, description: document.getElementById('newDesc').value, image: document.getElementById('newImage').value, link: document.getElementById('newLink').value, year: document.getElementById('newYear').value, days: document.getElementById('newDays').value, tags: document.getElementById('newTags').value.split(',').map(t => t.trim()) });
-    savePortfolio(); renderAdmin();
-  }
-  function editPortfolio(id) { let item = portfolioItems.find(p => p.id === id); let newTitle = prompt('Новое название', item.title); if (newTitle) item.title = newTitle; savePortfolio(); renderAdmin(); }
-  function deletePortfolio(id) { portfolioItems = portfolioItems.filter(p => p.id !== id); savePortfolio(); renderAdmin(); }
-  function setTab(tab) { currentTab = tab; renderAdmin(); }
-  checkAuth();
-</script>
+                <div class="admin-table"><h3>Последние 5 заявок</h3><table><thead><tr><th>Дата</th><th>Клиент</th><th>Услуга</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>
+                ${applications.slice(0,5).map(a => `<tr><td>${a.date}</td><td>${a.name}</td><td>${a.serviceType}</td><td>${a.finalPrice} ₽</td><td>${getStatusText(a.status)}</td></tr>`).join('')}
+                ${applications.length === 0 ? '<tr><td colspan="5">Нет заявок</td>' : ''}</tbody></table></div>`;
+            } else if (currentTab === 'crm') {
+                content += `<div class="admin-table"><h3>Все заявки</h3><button class="btn btn-primary" onclick="loadApplicationsFromAppwrite()" style="margin-bottom:15px;">🔄 Обновить</button>
+                <table><thead><tr><th>Дата</th><th>Клиент</th><th>Контакт</th><th>Услуга</th><th>Детали</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead><tbody>
+                ${applications.map(a => `<tr><td>${a.date}</td><td>${a.name}</td><td>${a.contact}</td><td>${a.serviceType}</td><td>${a.details ? a.details.substring(0,50) + '...' : '-'}</td>
+                <td>${a.finalPrice} ₽</td><td><select class="status-select" onchange="updateStatusInAppwrite('${a.id}', this.value)">${getStatusOptions(a.status)}</select></td>
+                <td><button class="btn btn-danger" style="padding:5px 10px;" onclick="deleteApplicationFromAppwrite('${a.id}')">Удалить</button></td></tr>`).join('')}
+                ${applications.length === 0 ? '<td><td colspan="8">Нет заявок</td>' : ''}</tbody></table></div>`;
+            } else if (currentTab === 'sync') {
+                content += `<div class="admin-table"><h3>Синхронизация с облаком</h3>
+                <p><strong>Статус:</strong> ${syncStatus.status === 'success' ? '✅ Подключено' : (syncStatus.status === 'error' ? '❌ Ошибка подключения' : '🔄 Синхронизация...')}</p>
+                <p><strong>Всего заявок в облаке:</strong> ${applications.length}</p>
+                <button class="btn btn-primary" onclick="loadApplicationsFromAppwrite()">🔄 Синхронизировать сейчас</button>
+                <hr><h4>Настройки Appwrite</h4>
+                <p><strong>Project ID:</strong> ${APPWRITE_PROJECT_ID}</p>
+                <p><strong>Database ID:</strong> ${APPWRITE_DATABASE_ID}</p>
+                <p><strong>Collection ID:</strong> ${APPWRITE_COLLECTION_ID}</p>
+                </div>`;
+            }
+            document.getElementById('app').innerHTML = content + `</div>`;
+        }
+        
+        function setTab(tab) { currentTab = tab; renderAdmin(); }
+        function showToast(msg, isError = false) { alert(msg); }
+        
+        checkAuth();
+    </script>
 </body>
 </html>
