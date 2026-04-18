@@ -1,16 +1,8 @@
 // Burger menu
 const burger = document.getElementById('burger');
 const navLinks = document.getElementById('navLinks');
-
-burger.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-});
-
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-    });
-});
+burger.addEventListener('click', () => { navLinks.classList.toggle('active'); });
+document.querySelectorAll('.nav-links a').forEach(link => { link.addEventListener('click', () => { navLinks.classList.remove('active'); }); });
 
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -22,10 +14,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             const offset = 80;
             const elementPosition = targetElement.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - offset;
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: "smooth"
-            });
+            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
         }
     });
 });
@@ -33,17 +22,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Fade-up animation observer
 const fadeElements = document.querySelectorAll('.fade-up');
 const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-        }
-    });
+    entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
 }, { threshold: 0.1 });
-
 fadeElements.forEach(el => observer.observe(el));
 
-// Toast function
 function showToast(message, isError = false) {
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
@@ -53,333 +35,272 @@ function showToast(message, isError = false) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// Scroll lock functions
 let scrollPosition = 0;
-function disableScroll() {
-    scrollPosition = window.scrollY;
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollPosition}px`;
-    document.body.style.width = '100%';
-}
-function enableScroll() {
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    window.scrollTo(0, scrollPosition);
-}
+function disableScroll() { scrollPosition = window.scrollY; document.body.style.overflow = 'hidden'; document.body.style.position = 'fixed'; document.body.style.top = `-${scrollPosition}px`; document.body.style.width = '100%'; }
+function enableScroll() { document.body.style.overflow = ''; document.body.style.position = ''; document.body.style.top = ''; document.body.style.width = ''; window.scrollTo(0, scrollPosition); }
 
-// ============ CALCULATOR CONFIGURATION ============
-function getDeadlineMultiplier(days, isPhoto = false) {
-    if (isPhoto) {
-        const multiplier = 2 - (days - 1) / 6;
-        return Math.min(2.0, Math.max(1.0, multiplier));
+// ============ ЗАГРУЗКА ДАННЫХ ============
+let prices = {};
+function loadPrices() {
+    const saved = localStorage.getItem('webcode_prices');
+    if (saved) { prices = JSON.parse(saved); }
+    else {
+        prices = {
+            designBase: 1500, designPerBlock: 500,
+            devBase: 8000, devPerPage: 700, devPerBlock: 400,
+            fullBase: 7000, fullPerPage: 700, fullPerBlock: 400,
+            shopBase: 50000,
+            adaptive: 650, hosting: 650, support: 500, calculator: 1500, delivery: 2000, crm: 2000, payment: 5000, adminPanel: 1700,
+            photoRetouch: 150, photoRestore: 200, photoColorize: 50, photoAnimate: 50
+        };
     }
-    const multiplier = 2 - (days - 3) / 27;
-    return Math.min(2.0, Math.max(1.0, multiplier));
 }
+loadPrices();
 
-function getMultiplierDescription(days, isPhoto = false) {
-    const multiplier = getDeadlineMultiplier(days, isPhoto);
-    if (days <= (isPhoto ? 2 : 5)) return `🔥 Сверхсрочно! ×${multiplier.toFixed(2)}`;
-    if (days <= (isPhoto ? 3 : 10)) return `⚡ Срочно! ×${multiplier.toFixed(2)}`;
-    if (days <= (isPhoto ? 5 : 20)) return `📅 Обычный срок ×${multiplier.toFixed(2)}`;
-    return `✅ Оптимальный срок ×${multiplier.toFixed(2)}`;
+// ============ ПОРТФОЛИО ============
+function loadPortfolio() {
+    const saved = localStorage.getItem('webcode_portfolio');
+    if (saved) { renderPortfolio(JSON.parse(saved)); }
+    else { fetchDefaultPortfolio(); }
 }
+function fetchDefaultPortfolio() {
+    const defaultPortfolio = [
+        { id: 1, title: "Gourmet Restaurant", description: "Сайт ресторана с онлайн-бронированием", image: "images/project1.png", link: "https://skyson8.github.io/Gourmet-Food/", year: "2025", days: "21", tags: ["HTML5","CSS3","JavaScript","React","Node.js"] },
+        { id: 2, title: "IT AURORA", description: "Лендинг для IT-компании", image: "images/project2.png", link: "https://skyson8.github.io/Aurora/", year: "2024", days: "14", tags: ["HTML5","CSS3","JavaScript","GSAP"] },
+        { id: 3, title: "Business Group", description: "Корпоративный сайт с CRM", image: "images/project3.png", link: "https://skyson8.github.io/BusinessGroup/", year: "2025", days: "28", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] },
+        { id: 4, title: "Точка Моды", description: "Интернет-магазин одежды", image: "images/project4.png", link: "https://skyson8.github.io/tochkamody/", year: "2026", days: "21", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] },
+        { id: 5, title: "Портфолио монтажера", description: "Сайт-визитка видеомонтажера", image: "images/project5.png", link: "https://www.portfolio-arsen-useinov.ru", year: "2026", days: "7", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] }
+    ];
+    renderPortfolio(defaultPortfolio);
+}
+function renderPortfolio(items) {
+    const grid = document.getElementById('portfolioGrid');
+    if (!grid) return;
+    grid.innerHTML = items.map(item => `
+        <div class="gallery-card">
+            <div class="gallery-card-image"><img src="${item.image}" alt="${item.title}"></div>
+            <div class="gallery-card-content">
+                <h3>${item.title}</h3>
+                <p>${item.description}</p>
+                <div class="project-details"><div class="detail-item"><i class="fas fa-calendar-alt"></i><span>${item.year}</span></div><div class="detail-item"><i class="fas fa-clock"></i><span>${item.days} дней</span></div></div>
+                <div class="tech-tags">${item.tags.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
+                <div class="gallery-card-buttons"><a href="${item.link}" class="btn-visit-site" target="_blank"><i class="fas fa-external-link-alt"></i> Посмотреть сайт</a></div>
+            </div>
+        </div>
+    `).join('');
+}
+loadPortfolio();
 
-// Options configuration
-const serviceOptions = {
-    adaptive: { name: "Адаптация под мобильные устройства", price: 500, desc: "Корректное отображение на всех устройствах" },
-    hosting: { name: "Хостинг и домен в подарок", price: 500, desc: "Бесплатный хостинг и домен на первый год" },
-    support: { name: "Поддержка сайта после разработки", price: 500, desc: "Техническая поддержка в течение месяца" },
-    calculator: { name: "Калькулятор расчета стоимости", price: 1000, desc: "Интерактивный калькулятор как на этом сайте" },
-    delivery: { name: "Подключение служб доставки (CDEK)", price: 2000, desc: "Интеграция с СДЭК для интернет-магазинов" },
-    crm: { name: "Интеграция с CRM", price: 2000, desc: "Подключение CRM-системы для управления клиентами" },
-    payment: { name: "Онлайн оплата", price: 5000, desc: "Прием платежей через карты и электронные кошельки" },
-    admin: { name: "Административная панель", price: 1700, desc: "Удобное редактирование контента сайта" }
-};
+// ============ ОТЗЫВЫ ============
+const reviewsData = [
+    { name: "Арсен У.", project: "Видеомонтажер", text: "Стильный минималистичный дизайн для портфолио - это вам к этим ребятам ))\n" + "Спасибо!" },
+    { name: "Дмитрий В.", project: "Студия дизайна", text: "Профессиональный подход, учли все пожелания. Сайт получился стильным, с калькулятором, как я и хотел. Спасибо команде!" },
+    { name: "Елена М.", project: "Интернет-магазин", text: "Быстро, качественно, с душой. Даже после запуска помогали с настройками. Обращусь ещё!" },
+    { name: "Михаил С.", project: "Частный клиент", text: "Заказал обработку старых семейных фото. Результат превзошёл ожидания! Фотографии стали как новые, а оживление фото добавило магии." },
+    { name: "Сергей К.", project: "Fashion Store", text: "Разработали интернет-магазин с интеграцией CRM и службой доставки. Всё работает отлично, клиенты довольны." },
+    { name: "Ольга Н.", project: "Частный клиент", text: "Очень понравилась работа с фото. Сделали цветным старое черно-белое фото и оживили его. Технологии на высоте!" }
+];
 
-// Какие опции доступны для каждого сервиса
-const serviceOptionsMap = {
-    design: [], // для дизайна нет опций
-    dev: ['adaptive', 'hosting', 'support', 'calculator', 'delivery', 'crm', 'payment', 'admin'],
-    full: ['adaptive', 'hosting', 'support', 'calculator', 'delivery', 'crm', 'payment', 'admin'],
-    shop: ['adaptive', 'hosting', 'support', 'calculator', 'delivery', 'crm', 'payment', 'admin']
-};
-
-const servicesConfig = {
-    design: {
-        title: "Разработка макета (UX/UI)",
-        base: 1000,
-        perBlock: 200,
-        fields: [{ type: "number", label: "Количество блоков", min: 1, default: 3, key: "blocks" }],
-        calc: (vals) => servicesConfig.design.base + (vals.blocks * servicesConfig.design.perBlock),
-        getDetails: (vals) => `📐 Количество блоков: ${vals.blocks}`
-    },
-    dev: {
-        title: "Вёрстка / Программирование (по готовому макету)",
-        base: 5000,
-        perBlock: 200,
-        perPage: 500,
-        fields: [
-            { type: "number", label: "Количество блоков", min: 1, default: 5, key: "blocks" },
-            { type: "number", label: "Количество страниц", min: 1, default: 2, key: "pages" }
-        ],
-        calc: (vals) => servicesConfig.dev.base + (vals.blocks * servicesConfig.dev.perBlock) + (vals.pages * servicesConfig.dev.perPage),
-        getDetails: (vals) => `📐 Блоков: ${vals.blocks}\n📄 Страниц: ${vals.pages}`
-    },
-    full: {
-        title: "Ваш сайт от идеи до запуска (под ключ)",
-        baseDesign: 1000,
-        baseDev: 5000,
-        perBlock: 200,
-        perPage: 500,
-        fields: [
-            { type: "number", label: "Количество блоков", min: 1, default: 5, key: "blocks" },
-            { type: "number", label: "Количество страниц", min: 1, default: 2, key: "pages" }
-        ],
-        calc: (vals) => servicesConfig.full.baseDesign + servicesConfig.full.baseDev + (vals.blocks * servicesConfig.full.perBlock) + (vals.pages * servicesConfig.full.perPage),
-        getDetails: (vals) => `🎨 Макет: 1000 ₽\n💻 Программирование:\n  📐 Блоки: ${vals.blocks} (${vals.blocks * 200} ₽)\n  📄 Страницы: ${vals.pages} (${vals.pages * 500} ₽)`
-    },
-    shop: {
-        title: "Интернет-магазин (под ключ)",
-        base: 35000,
-        fields: [],
-        calc: (vals) => servicesConfig.shop.base,
-        getDetails: (vals) => `🛍️ Интернет-магазин под ключ`
-    }
-};
-
-let currentService = "design";
-let currentValues = { blocks: 3 };
-let currentDeadline = 14;
-let selectedOptions = {};
-let messagePreviewElement = null;
-
-// Options rendering
-function renderOptions() {
-    const container = document.getElementById('optionsCheckboxes');
-    const optionsGroup = document.getElementById('optionsGroup');
+function renderReviewsSwiper() {
+    const container = document.getElementById('reviewsSwiperWrapper');
     if (!container) return;
-
-    const availableOptions = serviceOptionsMap[currentService] || [];
-
-    if (availableOptions.length === 0) {
-        optionsGroup.style.display = 'none';
-        return;
-    }
-    optionsGroup.style.display = 'block';
-
     let html = '';
-    for (const key of availableOptions) {
-        const opt = serviceOptions[key];
+    reviewsData.forEach((review, index) => {
         html += `
-            <div class="checkbox-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" data-option="${key}" ${selectedOptions[key] ? 'checked' : ''}>
-                    <span class="checkmark"></span>
-                    <span class="checkbox-text"><strong>${opt.name}</strong> (+${opt.price}₽)<br><small>${opt.desc}</small></span>
-                </label>
+            <div class="swiper-slide">
+                <div class="review-card" itemscope itemtype="https://schema.org/Review">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text" itemprop="reviewBody">"${review.text}"</p>
+                    <div class="reviewer" itemprop="author">— ${review.name}, ${review.project}</div>
+                    <meta itemprop="reviewRating" content="5">
+                </div>
             </div>
         `;
-    }
+    });
     container.innerHTML = html;
-    document.querySelectorAll('#optionsCheckboxes input').forEach(cb => {
-        cb.addEventListener('change', (e) => {
-            const key = cb.getAttribute('data-option');
-            if (cb.checked) selectedOptions[key] = true;
-            else delete selectedOptions[key];
-            updateTotal();
-            updateMessagePreview();
+    new Swiper('.reviews-swiper', {
+        slidesPerView: 1, spaceBetween: 30, loop: true,
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+    });
+}
+
+// ============ ОСНОВНОЙ КАЛЬКУЛЯТОР ============
+let currentStep = 1, selectedService = null, serviceParams = {}, selectedOptions = {};
+
+function renderStep() {
+    const container = document.getElementById('stepContent');
+    if (!container) return;
+    if (currentStep === 1) {
+        container.innerHTML = `
+            <div class="service-selector">
+                <div class="service-card" data-service="design"><i class="fas fa-pen-fancy"></i><h3>Разработка макета (UX/UI)</h3><p>Создание дизайн-макета вашего будущего сайта.</p><div class="service-price">от ${prices.designBase} ₽</div></div>
+                <div class="service-card" data-service="dev"><i class="fas fa-laptop-code"></i><h3>Вёрстка / Программирование</h3><p>Разработка сайта по готовому макету.</p><div class="service-price">от ${prices.devBase} ₽</div></div>
+                <div class="service-card" data-service="full"><i class="fas fa-rocket"></i><h3>Сайт (Под ключ) <span class="badge">Выгодно</span></h3><p>Полный цикл: макет + вёрстка.</p><div class="service-price">от ${prices.fullBase} ₽</div></div>
+                <div class="service-card" data-service="shop"><i class="fas fa-store"></i><h3>Интернет-магазин (Под ключ)</h3><p>Полноценный интернет-магазин с корзиной и оплатой.</p><div class="service-price">от ${prices.shopBase} ₽</div></div>
+            </div>
+        `;
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', () => { selectedService = card.dataset.service; updateStep(2); });
         });
-    });
-}
-
-function getOptionsTotal() {
-    let total = 0;
-    for (const [key, val] of Object.entries(selectedOptions)) {
-        if (val && serviceOptions[key]) total += serviceOptions[key].price;
-    }
-    return total;
-}
-
-function getBasePrice() {
-    const config = servicesConfig[currentService];
-    return config.calc(currentValues);
-}
-
-function getFinalPriceWithDeadline() {
-    const basePrice = getBasePrice() + getOptionsTotal();
-    const multiplier = getDeadlineMultiplier(currentDeadline);
-    return Math.round(basePrice * multiplier);
-}
-
-function updateTotal() {
-    const finalPrice = getFinalPriceWithDeadline();
-    const priceBadge = document.getElementById('totalPrice');
-    if (priceBadge) priceBadge.innerText = finalPrice + ' ₽';
-    updateDeadlineBadge();
-}
-
-function updateDeadlineBadge() {
-    const multiplier = getDeadlineMultiplier(currentDeadline);
-    const deadlineBadge = document.getElementById('deadlineBadge');
-    if (deadlineBadge) {
-        if (currentDeadline <= 5) deadlineBadge.innerHTML = '🔥🔥 СРОЧНО! +' + Math.round((multiplier - 1) * 100) + '% 🔥🔥';
-        else if (currentDeadline <= 10) deadlineBadge.innerHTML = '⚡ Срочный заказ +' + Math.round((multiplier - 1) * 100) + '%';
-        else if (currentDeadline <= 20) deadlineBadge.innerHTML = '📅 Стандартный срок';
-        else deadlineBadge.innerHTML = '✅ Оптимальный срок';
-    }
-    const multiplierInfo = document.getElementById('multiplierInfo');
-    if (multiplierInfo) {
-        multiplierInfo.innerHTML = `⚠️ Коэффициент срочности: ×${multiplier.toFixed(2)} (${getMultiplierDescription(currentDeadline)})`;
-        multiplierInfo.style.color = multiplier > 1.05 ? '#f59e0b' : '#22c55e';
-    }
-}
-
-function generateOrderMessage() {
-    const config = servicesConfig[currentService];
-    const details = config.getDetails(currentValues);
-    const basePrice = getBasePrice();
-    const optionsTotal = getOptionsTotal();
-    const finalPrice = getFinalPriceWithDeadline();
-    const multiplier = getDeadlineMultiplier(currentDeadline);
-
-    let optionsText = '';
-    if (Object.keys(selectedOptions).length > 0) {
-        optionsText = '\n\n📋 Дополнительные опции:\n';
-        for (const [key, val] of Object.entries(selectedOptions)) {
-            if (val && serviceOptions[key]) optionsText += `  • ${serviceOptions[key].name} (+${serviceOptions[key].price}₽)\n`;
-        }
-    }
-
-    let deadlineText = getMultiplierDescription(currentDeadline);
-
-    const message = `Здравствуйте! Я рассчитал стоимость для заказа разработки сайта:
-
-📌 Услуга: ${config.title}
-
-${details}${optionsText}
-
-⏱️ Срок выполнения: ${currentDeadline} дней (${deadlineText})
-
-💰 Расчет стоимости:
-   Базовая стоимость: ${basePrice} ₽
-   Дополнительные опции: +${optionsTotal} ₽
-   × Коэффициент срочности: ${multiplier.toFixed(2)}
-   = Итоговая стоимость: ${finalPrice} ₽
-
-Хочу заказать разработку! Жду вашего ответа.`;
-    return message;
-}
-
-function renderCalculator() {
-    const config = servicesConfig[currentService];
-    const fieldsContainer = document.getElementById('calculatorFields');
-    const serviceTitle = document.getElementById('serviceTitle');
-    if (serviceTitle) serviceTitle.innerText = config.title;
-
-    const defaults = {};
-    config.fields.forEach(field => {
-        if (field.type === 'number') defaults[field.key] = field.default;
-        if (field.type === 'checkbox') defaults[field.key] = field.default;
-    });
-    if (!currentValues || Object.keys(currentValues).length === 0) currentValues = { ...defaults };
-    else config.fields.forEach(field => { if (currentValues[field.key] === undefined) currentValues[field.key] = field.default; });
-
-    let html = '';
-    config.fields.forEach(field => {
-        if (field.type === 'number') {
-            html += `<div class="input-group"><label>${field.label}</label><input type="number" id="${field.key}" min="${field.min}" value="${currentValues[field.key]}" step="1"></div>`;
-        } else if (field.type === 'checkbox') {
-            html += `<div class="input-group"><label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="checkbox" id="${field.key}" ${currentValues[field.key] ? 'checked' : ''}> ${field.label}</label></div>`;
-        }
-    });
-    if (fieldsContainer) fieldsContainer.innerHTML = html;
-
-    config.fields.forEach(field => {
-        const el = document.getElementById(field.key);
-        if (el) {
-            el.addEventListener('change', (e) => {
-                if (field.type === 'checkbox') currentValues[field.key] = e.target.checked;
-                else currentValues[field.key] = parseInt(e.target.value) || 0;
-                updateTotal();
-                updateMessagePreview();
+    } else if (currentStep === 2) {
+        if (selectedService === 'design') {
+            container.innerHTML = `<div class="params-form"><div class="info-tooltip"><i class="fas fa-info-circle"></i> <span>Блок — раздел сайта (шапка, преимущества, услуги, отзывы, футер).</span></div><div class="input-group"><label>Количество блоков:</label><input type="number" id="blocksCount" min="1" value="3" step="1"><small>Первый блок входит в базовую стоимость</small></div><div class="price-preview" id="step2Price">Текущая стоимость: ${prices.designBase} ₽</div></div>`;
+            const input = document.getElementById('blocksCount');
+            input.addEventListener('input', () => {
+                const blocks = parseInt(input.value) || 1;
+                const total = prices.designBase + Math.max(0, blocks - 1) * prices.designPerBlock;
+                document.getElementById('step2Price').innerText = `Текущая стоимость: ${total} ₽`;
+                serviceParams = { blocks };
             });
+            input.dispatchEvent(new Event('input'));
+        } else if (selectedService === 'dev' || selectedService === 'full') {
+            const base = selectedService === 'dev' ? prices.devBase : prices.fullBase;
+            const perPage = selectedService === 'dev' ? prices.devPerPage : prices.fullPerPage;
+            const perBlock = selectedService === 'dev' ? prices.devPerBlock : prices.fullPerBlock;
+            container.innerHTML = `<div class="params-form"><div class="info-tooltip"><i class="fas fa-info-circle"></i> <span>Страница — отдельный HTML-документ (главная, контакты, услуги). Блок — раздел страницы.</span></div><div class="input-group"><label>Количество страниц:</label><input type="number" id="pagesCount" min="1" value="2" step="1"><small>Первая страница входит в базовую стоимость</small></div><div class="input-group"><label>Количество блоков (суммарно):</label><input type="number" id="blocksCount" min="1" value="5" step="1"><small>Первый блок входит в базовую стоимость</small></div><div class="price-preview" id="step2Price">Текущая стоимость: ${base} ₽</div></div>`;
+            const pagesInput = document.getElementById('pagesCount');
+            const blocksInput = document.getElementById('blocksCount');
+            const updatePrice = () => {
+                const pages = parseInt(pagesInput.value) || 1;
+                const blocks = parseInt(blocksInput.value) || 1;
+                const total = base + Math.max(0, pages - 1) * perPage + Math.max(0, blocks - 1) * perBlock;
+                document.getElementById('step2Price').innerText = `Текущая стоимость: ${total} ₽`;
+                serviceParams = { pages, blocks };
+            };
+            pagesInput.addEventListener('input', updatePrice);
+            blocksInput.addEventListener('input', updatePrice);
+            updatePrice();
+        } else if (selectedService === 'shop') {
+            container.innerHTML = `<div class="params-form"><div class="price-preview" id="step2Price">Базовая стоимость: ${prices.shopBase} ₽</div></div>`;
+            serviceParams = {};
         }
+    } else if (currentStep === 3) {
+        const optionsList = [
+            { key: 'adaptive', name: 'Адаптация под мобильные устройства', price: prices.adaptive, desc: 'Корректное отображение на всех устройствах' },
+            { key: 'hosting', name: 'Хостинг и домен от нашей студии (на 1 год)', price: prices.hosting, desc: 'Бесплатный хостинг и домен на первый год' },
+            { key: 'support', name: 'Поддержка сайта после разработки (1 месяц)', price: prices.support, desc: 'Техническая поддержка' },
+            { key: 'calculator', name: 'Интерактивный калькулятор', price: prices.calculator, desc: 'Расчёт стоимости, как на этом сайте' },
+            { key: 'delivery', name: 'Подключение служб доставки (CDEK)', price: prices.delivery, desc: 'Интеграция с СДЭК' },
+            { key: 'crm', name: 'Интеграция с CRM', price: prices.crm, desc: 'Подключение CRM-системы' },
+            { key: 'payment', name: 'Онлайн оплата', price: prices.payment, desc: 'Приём платежей через карты' },
+            { key: 'admin', name: 'Административная панель', price: prices.adminPanel, desc: 'Удобное редактирование контента' }
+        ];
+        let html = `<div class="options-list">`;
+        optionsList.forEach(opt => {
+            html += `<label class="checkbox-label option-item"><input type="checkbox" data-option="${opt.key}" ${selectedOptions[opt.key] ? 'checked' : ''}><span class="checkmark"></span><span><strong>${opt.name}</strong> (+${opt.price}₽)<br><small>${opt.desc}</small></span></label>`;
+        });
+        html += `</div><div class="price-preview" id="step3Price">Доп. опции: 0 ₽</div>`;
+        container.innerHTML = html;
+        document.querySelectorAll('#stepContent input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const key = cb.dataset.option;
+                if (cb.checked) selectedOptions[key] = true;
+                else delete selectedOptions[key];
+                let total = 0;
+                for (const [k, v] of Object.entries(selectedOptions)) if (v) total += getOptionPrice(k);
+                document.getElementById('step3Price').innerText = `Доп. опции: ${total} ₽`;
+            });
+        });
+    } else if (currentStep === 4) {
+        const total = calculateTotalPrice();
+        let serviceName = { design: 'Разработка макета', dev: 'Вёрстка/Программирование', full: 'Сайт (Под ключ)', shop: 'Интернет-магазин' }[selectedService];
+        let details = '';
+        if (selectedService === 'design') details = `Блоков: ${serviceParams.blocks || 1}`;
+        else if (selectedService === 'dev' || selectedService === 'full') details = `Страниц: ${serviceParams.pages || 1}, Блоков: ${serviceParams.blocks || 1}`;
+        let optionsText = '';
+        for (const [key, val] of Object.entries(selectedOptions)) if (val) optionsText += `<li>${getOptionName(key)} (+${getOptionPrice(key)}₽)</li>`;
+        container.innerHTML = `<div class="order-summary"><h3>Ваш заказ</h3><p><strong>Услуга:</strong> ${serviceName}</p><p><strong>Параметры:</strong> ${details}</p>${optionsText ? `<p><strong>Дополнительно:</strong><ul>${optionsText}</ul></p>` : ''}<p><strong>Итоговая стоимость:</strong> ${total} ₽</p><button class="btn btn-primary" id="submitFinalOrderBtn" style="margin-top:20px;">Оформить заказ</button></div>`;
+        document.getElementById('submitFinalOrderBtn')?.addEventListener('click', () => showOrderModal(total, serviceName, details));
+    }
+    updateProgressBar();
+    updateNavButtons();
+}
+function getOptionName(key) { return { adaptive: 'Адаптация', hosting: 'Хостинг+домен', support: 'Поддержка', calculator: 'Калькулятор', delivery: 'CDEK', crm: 'CRM', payment: 'Онлайн оплата', admin: 'Админ-панель' }[key] || key; }
+function getOptionPrice(key) { return { adaptive: prices.adaptive, hosting: prices.hosting, support: prices.support, calculator: prices.calculator, delivery: prices.delivery, crm: prices.crm, payment: prices.payment, admin: prices.adminPanel }[key] || 0; }
+function calculateTotalPrice() {
+    let base = 0;
+    if (selectedService === 'design') base = prices.designBase + Math.max(0, (serviceParams.blocks || 1) - 1) * prices.designPerBlock;
+    else if (selectedService === 'dev') base = prices.devBase + Math.max(0, (serviceParams.pages || 1) - 1) * prices.devPerPage + Math.max(0, (serviceParams.blocks || 1) - 1) * prices.devPerBlock;
+    else if (selectedService === 'full') base = prices.fullBase + Math.max(0, (serviceParams.pages || 1) - 1) * prices.fullPerPage + Math.max(0, (serviceParams.blocks || 1) - 1) * prices.fullPerBlock;
+    else if (selectedService === 'shop') base = prices.shopBase;
+    let optionsTotal = 0;
+    for (const [key, val] of Object.entries(selectedOptions)) if (val) optionsTotal += getOptionPrice(key);
+    return base + optionsTotal;
+}
+function updateProgressBar() {
+    const fill = document.getElementById('progressFill');
+    fill.style.width = `${(currentStep - 1) * 33.33}%`;
+    document.querySelectorAll('.step').forEach(step => {
+        const stepNum = parseInt(step.dataset.step);
+        step.classList.remove('active', 'completed');
+        if (stepNum === currentStep) step.classList.add('active');
+        if (stepNum < currentStep) step.classList.add('completed');
     });
-    updateTotal();
-    updateMessagePreview();
 }
-
-function updateMessagePreview() {
-    if (messagePreviewElement) {
-        const message = generateOrderMessage();
-        messagePreviewElement.innerHTML = message.replace(/\n/g, '<br>');
-    }
+function updateNavButtons() {
+    const prevBtn = document.getElementById('prevStepBtn');
+    const nextBtn = document.getElementById('nextStepBtn');
+    if (prevBtn) prevBtn.disabled = currentStep === 1;
+    if (nextBtn) nextBtn.innerText = currentStep === 4 ? 'Отправить' : 'Далее →';
 }
-
-function createMessagePreview() {
-    if (!messagePreviewElement) {
-        const orderBtn = document.getElementById('orderBtn');
-        const previewDiv = document.createElement('div');
-        previewDiv.className = 'message-preview';
-        previewDiv.innerHTML = `<div class="preview-header"><div class="preview-header-left"><i class="fas fa-comment-dots"></i><span>Предпросмотр сообщения для заказа</span></div><button class="copy-preview-btn" id="copyPreviewBtn"><i class="fas fa-copy"></i> Копировать сообщение</button></div><div class="preview-content" id="messagePreviewContent">Сообщение будет сформировано...</div>`;
-        if (orderBtn && orderBtn.parentNode) {
-            orderBtn.insertAdjacentElement('afterend', previewDiv);
-            messagePreviewElement = document.getElementById('messagePreviewContent');
-            document.getElementById('copyPreviewBtn').addEventListener('click', () => copyToClipboard(generateOrderMessage()));
-        }
-    }
+function updateStep(step) { currentStep = step; renderStep(); }
+function nextStep() {
+    if (currentStep === 4) return;
+    if (currentStep === 1 && !selectedService) { showToast('Выберите услугу', true); return; }
+    if (currentStep === 2 && (selectedService !== 'shop') && (!serviceParams.blocks || (selectedService !== 'design' && !serviceParams.pages))) { showToast('Заполните параметры', true); return; }
+    updateStep(currentStep + 1);
 }
+function prevStep() { if (currentStep > 1) updateStep(currentStep - 1); }
+document.getElementById('prevStepBtn')?.addEventListener('click', prevStep);
+document.getElementById('nextStepBtn')?.addEventListener('click', nextStep);
 
-async function copyToClipboard(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        showToast('✅ Сообщение скопировано в буфер обмена!');
-    } catch (err) { showToast('❌ Не удалось скопировать', true); }
+function showOrderModal(total, serviceName, details) {
+    const modal = document.getElementById('orderFormModal');
+    document.getElementById('orderSummary').innerHTML = `<strong>${serviceName}</strong><br>${details}<br><strong>Итого: ${total} ₽</strong>`;
+    modal.style.display = 'flex';
+    window.currentOrderData = { total, serviceName, details };
+    disableScroll();
 }
+document.getElementById('closeOrderModal')?.addEventListener('click', () => { document.getElementById('orderFormModal').style.display = 'none'; enableScroll(); });
+document.getElementById('orderConsent')?.addEventListener('change', (e) => { document.getElementById('submitOrderBtn').disabled = !e.target.checked; });
+document.getElementById('orderForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('orderName').value;
+    const phone = document.getElementById('orderPhone').value;
+    const email = document.getElementById('orderEmail').value;
+    if (!name || !phone) { showToast('Заполните имя и телефон', true); return; }
+    if (!document.getElementById('orderConsent').checked) { showToast('Примите согласие на обработку данных', true); return; }
+    const order = { id: Date.now(), date: new Date().toLocaleString('ru-RU'), name, contact: phone + (email ? ` (${email})` : ''), serviceType: window.currentOrderData.serviceName, finalPrice: window.currentOrderData.total, status: 'pending' };
+    let applications = JSON.parse(localStorage.getItem('webcode_applications') || '[]');
+    applications.unshift(order);
+    localStorage.setItem('webcode_applications', JSON.stringify(applications));
+    showToast('Заявка отправлена! Мы свяжемся с вами');
+    document.getElementById('orderFormModal').style.display = 'none';
+    enableScroll();
+    document.getElementById('orderForm').reset();
+    document.getElementById('orderConsent').checked = false;
+    document.getElementById('submitOrderBtn').disabled = true;
+    selectedService = null; serviceParams = {}; selectedOptions = {}; currentStep = 1;
+    renderStep();
+});
 
-function sendOrderToVK() {
-    const vkGroupLink = 'https://vk.com/krdwebcode';
-    const orderMessage = document.getElementById('orderMessage');
-    orderMessage.innerHTML = `✅ Открывается сообщество ВКонтакте...`;
-    orderMessage.classList.add('success');
-    orderMessage.style.display = 'block';
-    setTimeout(() => window.open(vkGroupLink, '_blank'), 500);
-    setTimeout(() => orderMessage.style.display = 'none', 5000);
-}
-
-// ============ PHOTO CALCULATOR ============
-let photoCount = 1;
-let photoType = 'retouch';
-let photoColorize = false;
-let photoAnimate = false;
-let photoDeadline = 4;
-let photoMessagePreviewElement = null;
-
+// ============ ФОТО КАЛЬКУЛЯТОР ============
+let photoCount = 1, photoType = 'retouch', photoColorize = false, photoAnimate = false, photoDeadline = 4;
+function getDeadlineMultiplier(days) { return Math.min(2.0, Math.max(1.0, 2 - (days - 1) / 6)); }
 function getPhotoBasePrice() {
-    let pricePerPhoto = photoType === 'retouch' ? 150 : 200;
+    let pricePerPhoto = photoType === 'retouch' ? prices.photoRetouch : prices.photoRestore;
     let total = photoCount * pricePerPhoto;
-    if (photoColorize) total += photoCount * 50;
-    if (photoAnimate) total += photoCount * 50;
+    if (photoColorize) total += photoCount * prices.photoColorize;
+    if (photoAnimate) total += photoCount * prices.photoAnimate;
     return total;
 }
-
-function getPhotoFinalPrice() {
-    const multiplier = getDeadlineMultiplier(photoDeadline, true);
-    return Math.round(getPhotoBasePrice() * multiplier);
-}
-
+function getPhotoFinalPrice() { return Math.round(getPhotoBasePrice() * getDeadlineMultiplier(photoDeadline)); }
 function updatePhotoTotal() {
-    const finalPrice = getPhotoFinalPrice();
-    document.getElementById('photoTotalPrice').innerText = finalPrice + ' ₽';
-    updatePhotoDeadlineBadge();
-}
-
-function updatePhotoDeadlineBadge() {
-    const multiplier = getDeadlineMultiplier(photoDeadline, true);
+    document.getElementById('photoTotalPrice').innerText = getPhotoFinalPrice() + ' ₽';
+    const multiplier = getDeadlineMultiplier(photoDeadline);
+    document.getElementById('photoMultiplierInfo').innerHTML = `⚠️ Коэффициент срочности: ×${multiplier.toFixed(2)}`;
     const badge = document.getElementById('photoDeadlineBadge');
     if (badge) {
         if (photoDeadline <= 2) badge.innerHTML = '🔥🔥 СРОЧНО! +' + Math.round((multiplier - 1) * 100) + '% 🔥🔥';
@@ -387,157 +308,54 @@ function updatePhotoDeadlineBadge() {
         else if (photoDeadline <= 5) badge.innerHTML = '📅 Стандартный срок';
         else badge.innerHTML = '✅ Оптимальный срок';
     }
-    const multiplierInfo = document.getElementById('photoMultiplierInfo');
-    if (multiplierInfo) {
-        multiplierInfo.innerHTML = `⚠️ Коэффициент срочности: ×${multiplier.toFixed(2)} (${getMultiplierDescription(photoDeadline, true)})`;
-    }
+    updatePhotoMessagePreview();
 }
-
 function generatePhotoOrderMessage() {
     const typeText = photoType === 'retouch' ? 'Хорошую фотографию отфотошопить' : 'Восстановление старого/поврежденного фото';
-    let details = `📸 Количество фото: ${photoCount}\n🖼️ Тип обработки: ${typeText} (${photoType === 'retouch' ? '150' : '200'}₽/шт)`;
-    if (photoColorize) details += `\n🎨 Сделать цветным: Да (+50₽/шт)`;
-    if (photoAnimate) details += `\n✨ Оживление фото: Да (+50₽/шт)`;
-    const basePrice = getPhotoBasePrice();
+    let details = `📸 Количество фото: ${photoCount}\n🖼️ Тип обработки: ${typeText} (${photoType === 'retouch' ? prices.photoRetouch : prices.photoRestore}₽/шт)`;
+    if (photoColorize) details += `\n🎨 Сделать цветным: Да (+${prices.photoColorize}₽/шт)`;
+    if (photoAnimate) details += `\n✨ Оживление фото: Да (+${prices.photoAnimate}₽/шт)`;
     const finalPrice = getPhotoFinalPrice();
-    const multiplier = getDeadlineMultiplier(photoDeadline, true);
-    const deadlineText = getMultiplierDescription(photoDeadline, true);
-
-    return `Здравствуйте! Я рассчитал стоимость обработки фотографий:
-
-📌 Услуга: Обработка фотографий
-
-${details}
-
-⏱️ Срок выполнения: ${photoDeadline} дней (${deadlineText})
-
-💰 Расчет стоимости:
-   Базовая стоимость: ${basePrice} ₽
-   × Коэффициент срочности: ${multiplier.toFixed(2)}
-   = Итоговая стоимость: ${finalPrice} ₽
-
-Хочу заказать обработку! Жду вашего ответа.`;
+    const multiplier = getDeadlineMultiplier(photoDeadline);
+    return `Здравствуйте! Я рассчитал стоимость обработки фотографий:\n\n📌 Услуга: Обработка фотографий\n\n${details}\n\n⏱️ Срок выполнения: ${photoDeadline} дней (коэффициент ×${multiplier.toFixed(2)})\n\n💰 Итоговая стоимость: ${finalPrice} ₽\n\nХочу заказать обработку! Жду вашего ответа.`;
 }
-
 function updatePhotoMessagePreview() {
-    if (photoMessagePreviewElement) {
-        const message = generatePhotoOrderMessage();
-        photoMessagePreviewElement.innerHTML = message.replace(/\n/g, '<br>');
-    }
+    const preview = document.getElementById('photoPreviewContent');
+    if (preview) preview.innerHTML = generatePhotoOrderMessage().replace(/\n/g, '<br>');
 }
-
 function sendPhotoOrderToVK() {
     const message = generatePhotoOrderMessage();
     const encodedMessage = encodeURIComponent(message);
     const vkGroupLink = `https://vk.com/write-225202490?message=${encodedMessage}`;
     const orderMessage = document.getElementById('photoOrderMessage');
     orderMessage.innerHTML = `✅ Сообщение сформировано! Открывается диалог с сообществом...`;
-    orderMessage.classList.add('success');
-    orderMessage.style.display = 'block';
+    orderMessage.classList.add('success'); orderMessage.style.display = 'block';
     setTimeout(() => window.open(vkGroupLink, '_blank'), 500);
     setTimeout(() => orderMessage.style.display = 'none', 5000);
 }
-
-// Initialize Photo Preview
-function createPhotoMessagePreview() {
-    const previewDiv = document.getElementById('photoMessagePreview');
-    if (previewDiv) {
-        photoMessagePreviewElement = document.getElementById('photoPreviewContent');
-        const copyBtn = document.getElementById('copyPhotoPreviewBtn');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', () => copyToClipboard(generatePhotoOrderMessage()));
-        }
-        updatePhotoMessagePreview();
-    }
-}
-
-// ============ INITIALIZATION ============
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentService = btn.getAttribute('data-service');
-        const config = servicesConfig[currentService];
-        const defaults = {};
-        config.fields.forEach(field => { if (field.type === 'number') defaults[field.key] = field.default; });
-        currentValues = { ...defaults };
-        selectedOptions = {};
-        renderOptions();
-        renderCalculator();
-    });
-});
-
-const deadlineSlider = document.getElementById('deadlineSlider');
-const deadlineValue = document.getElementById('deadlineValue');
-if (deadlineSlider) {
-    deadlineSlider.addEventListener('input', (e) => {
-        currentDeadline = parseInt(e.target.value);
-        if (deadlineValue) deadlineValue.innerText = currentDeadline;
-        updateTotal();
-        updateMessagePreview();
-    });
-}
-
-document.getElementById('orderBtn').addEventListener('click', sendOrderToVK);
-
-// Photo calculator init
-const photoCountInput = document.getElementById('photoCount');
-const photoRetouch = document.getElementById('photoRetouch');
-const photoRestore = document.getElementById('photoRestore');
-const photoColorizeCheck = document.getElementById('photoColorize');
-const photoAnimateCheck = document.getElementById('photoAnimate');
-const photoDeadlineSlider = document.getElementById('photoDeadlineSlider');
-const photoDeadlineValue = document.getElementById('photoDeadlineValue');
-
-if (photoCountInput) photoCountInput.addEventListener('input', () => { photoCount = parseInt(photoCountInput.value) || 1; updatePhotoTotal(); updatePhotoMessagePreview(); });
-if (photoRetouch) photoRetouch.addEventListener('change', () => { if (photoRetouch.checked) photoType = 'retouch'; updatePhotoTotal(); updatePhotoMessagePreview(); });
-if (photoRestore) photoRestore.addEventListener('change', () => { if (photoRestore.checked) photoType = 'restore'; updatePhotoTotal(); updatePhotoMessagePreview(); });
-if (photoColorizeCheck) photoColorizeCheck.addEventListener('change', () => { photoColorize = photoColorizeCheck.checked; updatePhotoTotal(); updatePhotoMessagePreview(); });
-if (photoAnimateCheck) photoAnimateCheck.addEventListener('change', () => { photoAnimate = photoAnimateCheck.checked; updatePhotoTotal(); updatePhotoMessagePreview(); });
-if (photoDeadlineSlider) {
-    photoDeadlineSlider.addEventListener('input', () => {
-        photoDeadline = parseInt(photoDeadlineSlider.value);
-        if (photoDeadlineValue) photoDeadlineValue.innerText = photoDeadline;
-        updatePhotoTotal();
-        updatePhotoMessagePreview();
-    });
-}
+document.getElementById('photoCount')?.addEventListener('input', (e) => { photoCount = parseInt(e.target.value) || 1; updatePhotoTotal(); });
+document.getElementById('photoRetouch')?.addEventListener('change', () => { if (document.getElementById('photoRetouch').checked) photoType = 'retouch'; updatePhotoTotal(); });
+document.getElementById('photoRestore')?.addEventListener('change', () => { if (document.getElementById('photoRestore').checked) photoType = 'restore'; updatePhotoTotal(); });
+document.getElementById('photoColorize')?.addEventListener('change', (e) => { photoColorize = e.target.checked; updatePhotoTotal(); });
+document.getElementById('photoAnimate')?.addEventListener('change', (e) => { photoAnimate = e.target.checked; updatePhotoTotal(); });
+document.getElementById('photoDeadlineSlider')?.addEventListener('input', (e) => { photoDeadline = parseInt(e.target.value); document.getElementById('photoDeadlineValue').innerText = photoDeadline; updatePhotoTotal(); });
 document.getElementById('photoOrderBtn')?.addEventListener('click', sendPhotoOrderToVK);
+document.getElementById('copyPhotoPreviewBtn')?.addEventListener('click', () => copyToClipboard(generatePhotoOrderMessage()));
+async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); showToast('✅ Сообщение скопировано!'); } catch (err) { showToast('❌ Ошибка копирования', true); } }
 
-// Swiper for reviews
-new Swiper('.reviews-swiper', {
-    slidesPerView: 1,
-    spaceBetween: 30,
-    loop: true,
-    pagination: { el: '.swiper-pagination', clickable: true },
-    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-    breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
-});
+// ============ ИНИЦИАЛИЗАЦИЯ ============
+renderReviewsSwiper();
+renderStep();
+updatePhotoTotal();
 
 // Privacy modal
-const consentCheckbox = document.getElementById('consentCheckbox');
-const submitBtn = document.getElementById('submitBtn');
-const privacyPolicyLink = document.getElementById('privacyPolicyLink');
+const privacyPolicyLink = document.getElementById('privacyPolicyLinkModal');
 const privacyModal = document.getElementById('privacyModal');
 const modalClose = document.querySelector('.modal-close');
 const modalCloseBtn = document.querySelector('.modal-close-btn');
-
-function updateSubmitButtonState() {
-    if (submitBtn && consentCheckbox) submitBtn.disabled = !consentCheckbox.checked;
-}
-if (consentCheckbox) consentCheckbox.addEventListener('change', updateSubmitButtonState);
-if (privacyPolicyLink) {
-    privacyPolicyLink.addEventListener('click', (e) => { e.preventDefault(); if (privacyModal) { disableScroll(); privacyModal.style.display = 'block'; } });
-}
-function closePrivacyModal() { if (privacyModal) { privacyModal.style.display = 'none'; enableScroll(); } }
+if (privacyPolicyLink) privacyPolicyLink.addEventListener('click', (e) => { e.preventDefault(); privacyModal.style.display = 'flex'; disableScroll(); });
+function closePrivacyModal() { privacyModal.style.display = 'none'; enableScroll(); }
 if (modalClose) modalClose.addEventListener('click', closePrivacyModal);
 if (modalCloseBtn) modalCloseBtn.addEventListener('click', closePrivacyModal);
 window.addEventListener('click', (e) => { if (e.target === privacyModal) closePrivacyModal(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && privacyModal && privacyModal.style.display === 'block') closePrivacyModal(); });
-
-// Initialize
-renderCalculator();
-renderOptions();
-createMessagePreview();
-createPhotoMessagePreview();
-updatePhotoTotal();
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && privacyModal && privacyModal.style.display === 'flex') closePrivacyModal(); });
