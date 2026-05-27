@@ -70,7 +70,6 @@ const defaultPortfolio = [
     { id: 3, title: "Business Group", description: "Корпоративный сайт с CRM", image: "images/project3.png", link: "https://skyson8.github.io/BusinessGroup/", year: "2025", days: "28", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] },
     { id: 4, title: "Точка Моды", description: "Интернет-магазин одежды", image: "images/project4.png", link: "https://skyson8.github.io/tochkamody/", year: "2026", days: "21", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] },
     { id: 5, title: "Портфолио монтажера", description: "Сайт-визитка видеомонтажера", image: "images/project5.png", link: "https://www.portfolio-arsen-useinov.ru", year: "2026", days: "7", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] }
-    { id: 6, title: "Свой Дом", description: "Сайт строительной компании", image: "images/project6.jpg", link: "https://svoi-dom-krd.ru/", year: "2026", days: "14", tags: ["HTML5","CSS3","JavaScript","Vue.js","Laravel"] }
 ];
 
 function renderPortfolio() {
